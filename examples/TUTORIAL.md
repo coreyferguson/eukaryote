@@ -40,7 +40,7 @@ Recombination is the act of transfering genes between individuals. This exchange
 
 **Organism/Species vs. Individual/Population**
 
-The terms 'organism' and 'individual' are mostly interchangeable. Generally, 'organism' is used in the context of living organisms on Earth whereas 'individual' is used in the broader context of genetic algorithms.
+The terms 'organism' and 'individual' are mostly interchangeable. In this tutorial, when referring to an 'organism' it is meant in the context of living organisms on Earth whereas 'individual' is used in the broader context of genetic algorithms.
 
 The terms 'species' and 'population' are also mostly interchangeable. A species is a collection of organisms in the same way that a population is a collection of individuals.
 
@@ -50,9 +50,19 @@ An individual's **genotype** are the instructions used to "make" an individual. 
 
 An individual's **phenotype** are those attributes which are decoded from the genotype. These are the genes which are expressed within an individual and used to determine fitness.
 
-For example, let's say we're writing an algorithm which comes up with an equation to match a given number. Let's say we want the computer to generate an equation that evaluates to the number 10.
+For example, let's say we're writing an algorithm that takes a number as input and gives us an equation of single digit numbers separated by `+`, `-`, `*`, and `/` symbols (no order of operations). We'll call this **[Math Jeopardy](mathJeopardy/README.md)**. Let's say we want the computer to generate an equation that evaluates to the number 10.
 
-A fit individual's genotype can be a string that looks like this: `1+3*2+2`. Because of random mutation, these numbers and symbols (the genes) can actually be mixed up into a nonsensical equation like this: `+1+*3*2+2`. To calculate the fitness of this individual, we need to decode it's genotype into a phenotype (a valid equation). `+1+*3*2+2` can be decoded by eliminating invalid characters (such as the first `+` and `*` symbols in the genotype) into the phenotype `1+3*2+2`.
+A fit individual's genotype can be a string that looks like this: `1+3*2+2`. Because of random mutation, these numbers and symbols (the genes) can actually be mixed up into a nonsensical equation like this: `+1+*3*2+2`. To calculate the fitness of this individual, we need to decode it's genotype into a phenotype (a valid equation). `+1+*3*2+2` can be decoded by:
+
+1. Grab the first number
+2. Grab the first symbol
+3. Grab the second number
+4. Perform operation
+5. Repeat 1-3 on the result of 4
+
+`+1+*3*2+2` becomes `1+3+2*2 = 12`
+
+Yes, there are a few missing symbols: `*` and a `+`. Let's call these uncoded genes :) If the length of the genome is important you can apply fitness pressures to encourage shorter lengths.
 
 **Intelligent Brute Force**
 

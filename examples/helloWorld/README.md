@@ -1,7 +1,5 @@
 
-# Example - Math Jeopardy
-
-*If you haven't yet looked at the [Hello World!](../helloWorld/README.md) example, it is recommended you start with the [Tutorial](../TUTORIAL.md)*
+# Example - Hello Evolution
 
 ## Usage
 
@@ -14,22 +12,22 @@ node
 And then...
 
 ```javascript
-var MathJeopardy = require('./examples/mathJeopardy');
-var mathJeopardy = new MathJeopardy();
-mathJeopardy.seed();
+var HelloWorld = require('./examples/helloWorld');
+var helloWorld = new HelloWorld();
+helloWorld.seed();
 ```
 
 ## Constructor
 
 ```javascript
-new MathJeopardy(options);
+new HelloWorld(options);
 ```
 
 ### Options
 
-#### target
+#### targetMessage
 
-Float (although integers work best) to which output calculation will equal. Used to calculate fitness score of evolving genotype. Default value is `9.5`.
+String message with highest possible fitness value. Used to calculate fitness score of evolving genotype. Default value is `Hello world!`.
 
 #### probabilities
 

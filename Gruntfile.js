@@ -2,20 +2,13 @@ module.exports = function(grunt) {
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		clean: [ 'dist' ],
 		nodeunit: [ 'test/*.js' ],
-		uglify: {
-			dist: {
-				src: 'src/<%= pkg.name %>.js',
-				dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js'
-			}
-		}
-	})
+		jshint: [ 'Gruntfile.js', 'src/**/*.js', 'test/**/*.js', 'examples/**/*.js' ]
+	});
 
-	grunt.loadNpmTasks('grunt-contrib-uglify')
-	grunt.loadNpmTasks('grunt-contrib-nodeunit')
-	grunt.loadNpmTasks('grunt-contrib-clean')
+	grunt.loadNpmTasks('grunt-contrib-nodeunit');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
 
-	grunt.registerTask('default', ['clean', 'nodeunit', 'uglify'])
+	grunt.registerTask('default', ['jshint', 'nodeunit']);
 
-}
+};
