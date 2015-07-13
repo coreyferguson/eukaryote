@@ -150,6 +150,7 @@ Eukaryote.prototype.seed = function(individual) {
 	var shouldStop = false;
 	for (var g=0; g<this.config.numberOfGenerations && !shouldStop; g++) {
 		this.mutatePopulation();
+		this.shufflePopulation();
 		this.sortPopulationByFitness();
 		this.applySelection();
 
@@ -180,6 +181,15 @@ Eukaryote.prototype.mutatePopulation = function() {
 		that.callbacks.mutate(individual);
 	});
 };
+
+/**
+ * Shuffle the population. This is used because individuals with the same fitness may not have the same 
+ * genotype; fitness should be calculated from phenotype. When applying selection pressures against a population
+ * we don't want to have bias against those individuals who were arbitrarily created first.
+ */
+Eukaryote.prototype.shufflePopulation = function() {
+	this.population = lodash.shuffle(this.population);
+}
 
 /**
  * Sort population by score returned from 'fitness' API callback.

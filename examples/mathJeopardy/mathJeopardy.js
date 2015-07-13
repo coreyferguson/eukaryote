@@ -134,6 +134,7 @@ MathJeopardy.prototype.seed = function() {
 				if (that.logging) {
 					console.log('Generation ' + generation + 
 						'  ..  Genotype: ' + fittestIndividual.genotype + 
+						'  ..  Phenotype: ' + fittestIndividual.phenotype + 
 						'  ..  Fitness: ' + fittestIndividual.fitness);
 				}
 				if (fittestIndividual.solution === that.target) {

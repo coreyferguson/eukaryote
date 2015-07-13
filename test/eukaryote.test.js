@@ -1,4 +1,5 @@
 var Eukaryote = require('../src/eukaryote');
+var lodash = require('lodash');
 
 module.exports = {
 
@@ -74,6 +75,29 @@ module.exports = {
 		eukaryote.spawn('individual3');
 		eukaryote.mutatePopulation();
 		test.equal(numberOfMutateCalls, 3, 'mutate callback not executed for all individuals in population');
+		test.done();
+	},
+
+	/**
+	 * Validate shuffle of population.
+	 */
+	shufflePopulation: function(test) {
+		var eukaryote = new Eukaryote({
+			callbacks: {
+				mutate: function(individual) { },
+				fitness: function(individual) { return 0; }
+			}
+		});
+		var originalPopulation = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+		eukaryote.population = lodash.clone(originalPopulation);
+		eukaryote.shufflePopulation();
+		var shuffled = false;
+		for (var c=0; c<originalPopulation.length; c++) {
+			if (eukaryote.population[c] !== originalPopulation[c]) {
+				shuffled = true;
+				break;
+			}
+		}
 		test.done();
 	},
 
