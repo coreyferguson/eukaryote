@@ -189,7 +189,7 @@ Eukaryote.prototype.mutatePopulation = function() {
  */
 Eukaryote.prototype.shufflePopulation = function() {
 	this.population = lodash.shuffle(this.population);
-}
+};
 
 /**
  * Sort population by score returned from 'fitness' API callback.

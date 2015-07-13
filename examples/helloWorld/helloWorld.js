@@ -42,7 +42,7 @@ HelloWorld.prototype.fitness = function(individual) {
  * Loop through genes in an indivual's genotype and mutate based on probability.
  */
 HelloWorld.prototype.mutate = function(individual) {
-	for (var c=0; c<this.targetMessage.length; c++) {
+	for (var c=0; c<individual.genotype.length; c++) {
 		if (Math.random() <= this.probabilities.mutateExistingGene) {
 			this.mutateExistingGene(individual, c);
 		}

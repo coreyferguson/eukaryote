@@ -10,8 +10,8 @@ var MathJeopardy = function(options) {
 	this.target = options.target || 9.5;
 	this.probabilities = {
 		mutateExistingGene: 0.15,
-		newGene: 0.06,
-		removeGene: 0.06
+		newGene: 0.3,
+		removeGene: 0.3
 	};
 	if (isDefined(options.logging)) {
 		this.logging = options.logging;
@@ -74,7 +74,7 @@ MathJeopardy.prototype.fitness = function(individual) {
 };
 
 MathJeopardy.prototype.mutate = function(individual) {
-	for (var c=0; c<this.target.length; c++) {
+	for (var c=0; c<individual.genotype.length; c++) {
 		if (Math.random() <= this.probabilities.mutateExistingGene) {
 			this.mutateExistingGene(individual, c);
 		}
