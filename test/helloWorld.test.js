@@ -47,7 +47,7 @@ module.exports = {
 	mutateExistingGene: function(test) {
 		var individual;
 		// remove a, b, c and d from available genes
-		helloWorld.availableGenes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-=_+`~\'" ';
+		helloWorld.genePool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-=_+`~\'" ';
 		// test removal of first gene 'a'
 		individual = { genotype: 'abcd' };
 		helloWorld.mutateExistingGene(individual, 0);
