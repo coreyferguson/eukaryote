@@ -66,14 +66,32 @@ var Eukaryote = function(options) {
 
 /**
  * Selection strategies used to eliminate unfit individuals.
+ * @param {
+ * 	  numberOfIndividuals: optional, integer, default: 1, range: 1
+ * }
  */
 Eukaryote.SelectionStrategy = {
 
 	/**
+	 * X number of individuals survive for reproduction.
+	 * @param {}
+	 *   numberOfIndividuals: optional, integer, default: 1, range: 0 < i <= population.length
+	 * }
+	 */
+	TopX: function(options) {
+		options = options || {};
+		options.numberOfIndividuals = options.numberOfIndividuals || 1;
+		return function(population) {
+			var numberOfCasualties = population.length - options.numberOfIndividuals;
+			population.splice(options.numberOfIndividuals, numberOfCasualties);
+		};
+
+	},
+
+	/**
 	 * Only top 10 percent of individuals survive to reproduce.
-	 * @param population
 	 * @param options {
-	 *   probability: optional, float, default: 0.1, range: 0 >= f <= 1
+	 *   probability: optional, float, default: 0.1, range: 0 < f <= population.length
 	 * }
 	 */
 	TopXPercent: function(options) {
@@ -81,9 +99,26 @@ Eukaryote.SelectionStrategy = {
 		options.probability = options.probability || 0.1;
 		return function(population) {
 			var numberOfSuvivors = Math.floor(population.length * options.probability);
-			if (numberOfSuvivors === 0) numberOfSuvivors++;
+			if (numberOfSuvivors <= 0) numberOfSuvivors++;
 			var numberOfCasualties = population.length - numberOfSuvivors;
 			population.splice(numberOfSuvivors, numberOfCasualties);
+		};
+	},
+
+	/**
+	 * For each individual in a population starting with the most fit individual,
+	 * x% probability of death where x grows as the individuals get less and less fit.
+	 */
+	RandomWeightedByRank: function() {
+		return function(population) {
+			for (var index=population.length; index>=0; index--) {
+				var sumOfSeries = ( population.length * (population.length + 1) ) / 2;
+				var probabilityOfDeath = (index+1) / sumOfSeries;
+				var randomProbability = Math.floor( Math.random()*101 );
+				if (randomProbability <= probabilityOfDeath && population.length > 1) {
+					population.splice(index, 1);
+				}
+			}
 		};
 	}
 

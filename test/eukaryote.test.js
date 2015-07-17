@@ -259,7 +259,55 @@ module.exports = {
 	},
 
 	/**
-	 * Validate top 10 percent fittest individuals survive selection.
+	 * Validate top 10 individuals survive selection from a population of 100 individuals.
+	 */
+	SelectionStrategy_Top10: function(test) {
+		var eukaryote = new Eukaryote({
+			callbacks: {
+				mutate: function(individual) { },
+				fitness: function(individual) { return 0; }
+			},
+			config: { populationSize: 100 }
+		});
+		var fitness;
+		for (fitness=100; fitness>=1; fitness--) {
+			eukaryote.spawn(fitness);
+		}
+		var strategy = Eukaryote.SelectionStrategy.TopX({numberOfIndividuals: 10});
+		strategy(eukaryote.population);
+		test.equal(eukaryote.population.length, 10, 'expecting only 10 to survive but found ' + eukaryote.population.length);
+		fitness=100;
+		for (var index=0; index<10; index++) {
+			test.equal(eukaryote.population[index], fitness);
+			fitness--;
+		}
+		test.done();
+	},
+
+	/**
+	 * Validate 1 individual survives selection from a population of 9 individuals.
+	 */
+	SelectionStrategy_Top1_9_individuals: function(test) {
+		var eukaryote = new Eukaryote({
+			callbacks: {
+				mutate: function(individual) { },
+				fitness: function(individual) { return 0; }
+			},
+			config: { populationSize: 9 }
+		});
+		for (var fitness=9; fitness>=1; fitness--) {
+			eukaryote.spawn(fitness);
+		}
+		var strategy = Eukaryote.SelectionStrategy.TopX({numberOfIndividuals: 1});
+		strategy(eukaryote.population);
+		test.equal(eukaryote.population.length, 1);
+		test.equal(eukaryote.population[0], 9);
+		test.done();
+	},
+
+
+	/**
+	 * Validate top 10 percent fittest individuals survive selection from a population of 100 individuals.
 	 */
 	SelectionStrategy_Top10Percent: function(test) {
 		var eukaryote = new Eukaryote({
@@ -285,8 +333,7 @@ module.exports = {
 	},
 
 	/**
-	 * Validate top 10 percent fittest individuals survive selection
-	 * even with small population.
+	 * Validate 1 fit individual survives selection from a population of 9 individuals.
 	 */
 	SelectionStrategy_Top10Percent_9_individuals: function(test) {
 		var eukaryote = new Eukaryote({
@@ -303,6 +350,60 @@ module.exports = {
 		strategy(eukaryote.population);
 		test.equal(eukaryote.population.length, 1);
 		test.equal(eukaryote.population[0], 9);
+		test.done();
+	},
+
+	/**
+	 * Validate at least 1 individual survives extinction (even if highly unlikely to actually happen).
+	 */
+	SelectionStrategy_RandomWeightedByRank_no_extinction: function(test) {
+		// mock
+		var _random = Math.random;
+		Math.random = function() { return 0; };
+		// test
+		var populationSize = 20;
+		var eukaryote = new Eukaryote({
+			callbacks: {
+				mutate: function(individual) { },
+				fitness: function(individual) { return 0; }
+			},
+			config: { populationSize: populationSize }
+		});
+		for (var fitness=populationSize; fitness>=1; fitness--) {
+			eukaryote.spawn(fitness);
+		}
+		var strategy = Eukaryote.SelectionStrategy.RandomWeightedByRank();
+		strategy(eukaryote.population);
+		test.equal(eukaryote.population.length, 1, 'expecting 1 survivor');
+		// un-mock
+		Math.random = _random;
+		test.done();
+	},
+
+	/**
+	 * Validate no individual is killed when God is looking on favorably (0% chance of death).
+	 */
+	SelectionStrategy_RandomWeightedByRank_no_casualties: function(test) {
+		// mock
+		var _random = Math.random;
+		Math.random = function() { return 0.999; };
+		// test
+		var populationSize = 20;
+		var eukaryote = new Eukaryote({
+			callbacks: {
+				mutate: function(individual) { },
+				fitness: function(individual) { return 0; }
+			},
+			config: { populationSize: populationSize }
+		});
+		for (var fitness=populationSize; fitness>=1; fitness--) {
+			eukaryote.spawn(fitness);
+		}
+		var strategy = Eukaryote.SelectionStrategy.RandomWeightedByRank();
+		strategy(eukaryote.population);
+		test.equal(eukaryote.population.length, 20, 'expecting all individuals to survive');
+		// un-mock
+		Math.random = _random;
 		test.done();
 	},
 

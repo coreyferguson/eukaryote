@@ -105,15 +105,42 @@ new Eukaryote({
 
 All selection strategies are designed to kill off some number of individuals within your population. This is to make room for those who will reproduce.
 
+#### TopX
+
+Top `x` individuals survive to reproduce.
+
+Options:
+
+Name                | Required | Default      | Return Type                                | Short Description
+------------------- | -------- | ------------ | ------------------------------------------ | -----------------
+numberOfIndividuals | optional | 1            | integer, range: 0 < i <= population.length | Number of individuals to survive.
+
+```javascript
+// Top 2 fittest individuals survive for replication
+Eukaryote.SelectionStrategy.TopX({ numberOfIndividuals: 2 })
+```
+
 #### TopXPercent
 
-Top `x` percent of population survive to reproduce. `x` is given with the option `probability`.
+Top `x` percent of population survive to reproduce.
 
-Default: 0.1
+Options:
+
+Name        | Required | Default      | Return Type              | Short Description
+----------- | -------- | ------------ | ------------------------ | -----------------
+probability | optional | default: 0.1 | float, range: 0 < f <= 1 | Percent of individuals to survive.
 
 ```javascript
 // 50% of population survives for replication
 Eukaryote.SelectionStrategy.TopXPercent({ probability: 0.5 })
+```
+
+#### RandomWeightedByRank
+
+For each individual in a population starting with the most fit individual, x% probability of death where x grows as the individuals become less fit.
+
+```javascript
+Eukaryote.SelectionStrategy.RandomWeightedByRank()
 ```
 
 #### Fittest
