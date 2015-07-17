@@ -261,7 +261,7 @@ module.exports = {
 	/**
 	 * Validate top 10 percent fittest individuals survive selection.
 	 */
-	SelectionStrategy_Top10Percent_100_individuals: function(test) {
+	SelectionStrategy_Top10Percent: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -272,7 +272,8 @@ module.exports = {
 		for (var fitness=100; fitness>=1; fitness--) {
 			eukaryote.spawn(fitness);
 		}
-		Eukaryote.SelectionStrategy.Top10Percent(eukaryote.population);
+		var strategy = Eukaryote.SelectionStrategy.TopXPercent({probability: 0.1});
+		strategy(eukaryote.population);
 		// validate number of survivors
 		test.equal(eukaryote.population.length, 10);
 		// validate fittest survivors
@@ -298,7 +299,8 @@ module.exports = {
 		for (var fitness=9; fitness>=1; fitness--) {
 			eukaryote.spawn(fitness);
 		}
-		Eukaryote.SelectionStrategy.Top10Percent(eukaryote.population);
+		var strategy = Eukaryote.SelectionStrategy.TopXPercent({probability: 0.1});
+		strategy(eukaryote.population);
 		test.equal(eukaryote.population.length, 1);
 		test.equal(eukaryote.population[0], 9);
 		test.done();

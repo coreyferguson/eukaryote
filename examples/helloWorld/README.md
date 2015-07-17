@@ -33,9 +33,9 @@ String message with highest possible fitness value. Used to calculate fitness sc
 
 Name | Type | Description
 ---- | ---- | -----------
-mutateExistingGene | Float `0 >= f < 1` | Chance of mutation on each gene (not individual).
-newGene | Float `0 >= f < 1` | Chance of creating new gene and inserting randomly into genotype.
-removeGene | Float `0 >= f < 1` | Chance of removing a random gene from genotype.
+mutateExistingGene | Float `0 >= f <= 1` | Chance of mutation on each gene (not individual).
+newGene | Float `0 >= f <= 1` | Chance of creating new gene and inserting randomly into genotype.
+removeGene | Float `0 >= f <= 1` | Chance of removing a random gene from genotype.
 
 #### logging
 

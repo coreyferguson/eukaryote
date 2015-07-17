@@ -98,20 +98,23 @@ new Eukaryote({
 		mutate: function(individual) { ... }
 	},
 	strategy: {
-		selection: Eukaryote.SelectionStrategy.Top10Percent
+		selection: Eukaryote.SelectionStrategy.TopXPercent()
 	}
 });
 ```
 
 All selection strategies are designed to kill off some number of individuals within your population. This is to make room for those who will reproduce.
 
-#### Top10Percent
+#### TopXPercent
 
-Top 10% of population survive to reproduce.
+Top `x` percent of population survive to reproduce. `x` is given with the option `probability`.
 
-#### Top50Percent
+Default: 0.1
 
-**TODO** Top 50% of population survive to reproduce.
+```javascript
+// 50% of population survives for replication
+Eukaryote.SelectionStrategy.TopXPercent({ probability: 0.5 })
+```
 
 #### Fittest
 

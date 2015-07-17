@@ -56,7 +56,7 @@ var Eukaryote = function(options) {
 	// Strategies
 	options.strategy = options.strategy || {};
 	this.strategy = {
-		selection: options.strategy.selection || Eukaryote.SelectionStrategy.Top10Percent
+		selection: options.strategy.selection || Eukaryote.SelectionStrategy.TopXPercent()
 	};
 
 	// Properties
@@ -71,12 +71,20 @@ Eukaryote.SelectionStrategy = {
 
 	/**
 	 * Only top 10 percent of individuals survive to reproduce.
+	 * @param population
+	 * @param options {
+	 *   probability: optional, float, default: 0.1, range: 0 >= f <= 1
+	 * }
 	 */
-	Top10Percent: function(population) {
-		var numberOfSuvivors = Math.floor(population.length / 10);
-		if (numberOfSuvivors === 0) numberOfSuvivors++;
-		var numberOfCasualties = population.length - numberOfSuvivors;
-		population.splice(numberOfSuvivors, numberOfCasualties);
+	TopXPercent: function(options) {
+		options = options || {};
+		options.probability = options.probability || 0.1;
+		return function(population) {
+			var numberOfSuvivors = Math.floor(population.length * options.probability);
+			if (numberOfSuvivors === 0) numberOfSuvivors++;
+			var numberOfCasualties = population.length - numberOfSuvivors;
+			population.splice(numberOfSuvivors, numberOfCasualties);
+		};
 	}
 
 };
