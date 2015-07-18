@@ -9,9 +9,9 @@ var MathJeopardy = function(options) {
 	options = options || {};
 	this.target = options.target || 9.5;
 	this.probabilities = {
-		mutateExistingGene: 0.15,
+		mutateExistingGene: 0.25,
 		newGene: 0.3,
-		removeGene: 0.3
+		removeGene: 0.15
 	};
 	if (isDefined(options.logging)) {
 		this.logging = options.logging;
@@ -87,11 +87,17 @@ MathJeopardy.prototype.mutate = function(individual) {
 	}
 };
 
-MathJeopardy.prototype.crossover = function(father, mother) {
-	var offspringGenotypes = Eukaryote.CrossoverStrategy.SimilarStrings(father.genotype, mother.genotype);
-	father.genotype = offspringGenotypes[0];
-	mother.genotype = offspringGenotypes[1];
-	return [father, mother];
+MathJeopardy.prototype.crossover = function(individuals) {
+	// get array of strings from 'genotype' property within each individual
+	var genotypes = individuals.map(function(individual) {
+		return individual.genotype;
+	});
+	// crossover
+	var offspringGenotypes = Eukaryote.CrossoverStrategy.SimilarStrings()(genotypes);
+	// offspring
+	var son = { genotype: offspringGenotypes[0] };
+	var daughter = { genotype: offspringGenotypes[1] };
+	return [son, daughter];
 };
 
 MathJeopardy.prototype.newGene = function(individual) {
@@ -147,6 +153,9 @@ MathJeopardy.prototype.seed = function() {
 		config: {
 			populationSize: 250,
 			numberOfGenerations: 500
+		},
+		strategy: {
+			mating: Eukaryote.MatingStrategy.SequentialRandom()
 		}
 	});
 	eukaryote.seed({genotype: this.newGene()}); // seed the world with single gene individuals

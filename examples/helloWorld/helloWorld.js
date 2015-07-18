@@ -79,11 +79,17 @@ HelloWorld.prototype.mutate = function(individual) {
  * crossover strategy provided by Eukaryote.
  * @return [son, daughter] 
  */
-HelloWorld.prototype.crossover = function(father, mother) {
-	var offspringGenotypes = Eukaryote.CrossoverStrategy.SimilarStrings(father.genotype, mother.genotype);
-	father.genotype = offspringGenotypes[0];
-	mother.genotype = offspringGenotypes[1];
-	return [father, mother];
+HelloWorld.prototype.crossover = function(individuals) {
+	// get array of strings from 'genotype' property within each individual
+	var genotypes = individuals.map(function(individual) {
+		return individual.genotype;
+	});
+	// crossover
+	var offspringGenotypes = Eukaryote.CrossoverStrategy.SimilarStrings()(genotypes);
+	// offspring
+	var son = { genotype: offspringGenotypes[0] };
+	var daughter = { genotype: offspringGenotypes[1] };
+	return [son, daughter];
 };
 
 /**

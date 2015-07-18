@@ -3,29 +3,6 @@ var lodash = require('lodash');
 var typeName = require('type-name');
 
 /**
- * Validate object is not null or undefined.
- */
-function isDefined(o) {
-	return o !== null && o !== undefined;
-}
-
-/**
- * Validate object is a boolean.
- */
-function isBoolean(o) {
-	var type = typeName(o);
-	return type === 'boolean' || type === 'Boolean';
-}
-
-/**
- * Validate object is a string.
- */
-function isString(o) {
-	var type = typeName(o);
-	return type === 'string' || type === 'String';
-}
-
-/**
  * Eukaryote constructor.
  */
 var Eukaryote = function(options) {
@@ -56,7 +33,8 @@ var Eukaryote = function(options) {
 	// Strategies
 	options.strategy = options.strategy || {};
 	this.strategy = {
-		selection: options.strategy.selection || Eukaryote.SelectionStrategy.TopXPercent()
+		selection: options.strategy.selection || Eukaryote.SelectionStrategy.TopXPercent(),
+		mating: options.strategy.mating || Eukaryote.MatingStrategy.Random()
 	};
 
 	// Properties
@@ -125,6 +103,94 @@ Eukaryote.SelectionStrategy = {
 };
 
 /**
+ * Mating strategies can be thought of as sexual selection. These strategies choose 
+ * which individuals crossover genes during replication (after selection).
+ */
+Eukaryote.MatingStrategy = {
+
+	/**
+	 * Individuals chosen at random.
+	 */
+	Random: function(options) {
+		options = options || {};
+		if (!isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 2;
+		}
+		return {
+			begin: function() { },
+			mate: function(population) {
+				var individuals = [];
+				for (var c=0; c<options.numberOfIndividuals; c++) {
+					var randomIndividualIndex = Math.floor( Math.random()*population.length );
+					var randomIndividual = population[randomIndividualIndex];
+					individuals.push(randomIndividual);
+				}
+				return individuals;
+			},
+			end: function() { }
+		};
+	},
+
+	/**
+	 * Individuals chosen sequentially from population ordered by fitness starting with most fit individual.
+	 */
+	Sequential: function(options) {
+		options = options || {};
+		if (!isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 2;
+		}
+		var currentIndex;
+		return {
+			begin: function() {
+				currentIndex = 0;
+			},
+			mate: function(population) {
+				var individuals = [];
+				for (var c=0; c<options.numberOfIndividuals; c++) {
+					if (currentIndex >= population.length) {
+						currentIndex = 0;
+					}
+					individuals.push(population[currentIndex++]);
+				}
+				return individuals;
+			},
+			end: function() { }
+		};
+	},
+
+	/**
+	 * Father is chosen sequentially from population ordered by fitness starting with the most fit individual. 
+	 * Mother is chosen randomly.
+	 */
+	SequentialRandom: function(options) {
+		options = options || {};
+		if (!isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 2;
+		}
+		var currentIndex;
+		return {
+			begin: function() {
+				currentIndex = 0;
+			},
+			mate: function(population) {
+				var individuals = [];
+				if (currentIndex >= population.length) {
+					currentIndex = 0;
+				}
+				individuals.push(population[currentIndex++]);
+				for (var c=0; c<options.numberOfIndividuals-1; c++) {
+					var randomIndividualIndex = Math.floor( Math.random()*population.length );
+					individuals.push(population[randomIndividualIndex]);
+				}
+				return individuals;
+			},
+			end: function() { }
+		};
+	}
+
+};
+
+/**
  * Crossover strategies used to recombine genes from two individuals.
  */
 Eukaryote.CrossoverStrategy = {
@@ -133,43 +199,75 @@ Eukaryote.CrossoverStrategy = {
 	 * Crossover two genotypes of type 'string'. Replace similar segments of
 	 * string genotypes.
 	 *
+	 * @param options {
+	 *     numberOfOffspring: optional, integer, default: 2
+	 *     chromosomeLengthAsPercentOfGenotype: optional, float, default: 50, range: 0 < n < 100
+	 * }
+	 * 
 	 * Examples: 
 	 * - 'abc'  + 'xyz'  = 'xbc'  & 'ayz'
 	 * - 'abcd' + 'xyz'  = 'aycd' & 'xbz'
 	 * - 'abc'  + 'wxyz' = 'aby'  & 'wxcz'
 	 */
-	SimilarStrings: function(father, mother) {
-		if (!isString(father)) {
-			throw new Error("first parameter of CrossoverStrategy.SimilarStrings must be of type 'string'");
+	SimilarStrings: function(options) {
+		// defaults
+		options = options || {};
+		if (!isDefined(options.numberOfOffspring)) { options.numberOfOffspring = 2; }
+		if (!isDefined(options.chromosomeLengthAsPercentOfGenotype)) { options.chromosomeLengthAsPercentOfGenotype = 50; }
+		// validation
+		if (!isNumber(options.numberOfOffspring)) {
+			throw new Error("Option 'numberOfOffspring' must be a number. Found the " + 
+				typeName(options.numberOfOffspring) + ": " + options.numberOfOffspring);
 		}
-		if (!isString(mother)) {
-			throw new Error("second parameter of CrossoverStrategy.SimilarStrings must be of type 'string'");
+		if (options.numberOfOffspring <= 0) {
+			throw new Error("Option 'numberOfOffspring' must be larger than 0.");
 		}
-
-		var offspring = [];
-
-		// identify similar stretches of genes
-		var minIndex = 0;
-		var chromosomeLength, maxIndex;
-		if (father.length < mother.length) {
-			chromosomeLength = Math.floor(father.length / 2);
-			maxIndex = father.length - chromosomeLength;
-		} else {
-			chromosomeLength = Math.floor(mother.length / 2);
-			maxIndex = mother.length - chromosomeLength;
+		if (!isNumber(options.chromosomeLengthAsPercentOfGenotype)) {
+			throw new Error("Option 'chromosomeLengthAsPercentOfGenotype' must be a number. Found the " + 
+				typeName(options.chromosomeLengthAsPercentOfGenotype) + ": " + options.chromosomeLengthAsPercentOfGenotype);
 		}
-
-		// recombine similar stretches of genotype
-		var randomIndex = Math.floor( Math.random() * (maxIndex+1) );
-		var fg1 = father.substring(0, randomIndex);
-		var fg2 = father.substring(randomIndex, randomIndex+chromosomeLength);
-		var fg3 = father.substring(randomIndex+chromosomeLength, father.length);
-		var mg1 = mother.substring(0, randomIndex);
-		var mg2 = mother.substring(randomIndex, randomIndex+chromosomeLength);
-		var mg3 = mother.substring(randomIndex+chromosomeLength, mother.length);
-		offspring[0] = fg1 + mg2 + fg3;
-		offspring[1] = mg1 + fg2 + mg3;
-		return offspring;
+		if (options.chromosomeLengthAsPercentOfGenotype < 1 || options.chromosomeLengthAsPercentOfGenotype > 100) {
+			throw new Error("Option 'chromosomeLengthAsPercentOfGenotype' must be > 0 and <= 100");
+		}
+		return function(genotypes) {
+			// validate all genotypes are of type 'string'
+			genotypes.forEach(function(genotype) {
+				if (!isString(genotype)) {
+					throw new Error("genotypes provided to CrossoverStrategy.SimilarStrings must be of type 'string'");
+				}
+			});
+			// identify chromosome length
+			var smallestGenotype = genotypes[0];
+			genotypes.forEach(function(genotype) {
+				if (genotype.length < smallestGenotype.length) {
+					smallestGenotype = genotype;
+				}
+			});
+			var chromosomeLength = Math.floor(smallestGenotype.length * options.chromosomeLengthAsPercentOfGenotype / 100);
+			var minIndex = 0;
+			var maxIndex = smallestGenotype.length - chromosomeLength;
+			// retrieve similar chromosomes
+			var randomIndex = Math.floor( Math.random() * (maxIndex+1) );
+			if (randomIndex === 0) { randomIndex++; }
+			var section1 = [];
+			var section2 = [];
+			var section3 = [];
+			genotypes.forEach(function(genotype) {
+				section1.push( genotype.substring(0, randomIndex) );
+				section2.push( genotype.substring(randomIndex, randomIndex+chromosomeLength) );
+				section3.push( genotype.substring(randomIndex+chromosomeLength, genotype.length) );
+			});
+			// create offspring from random chromosomes
+			var offspring = [];
+			for (var c=0; c<options.numberOfOffspring; c++) {
+				var randomIndex1 = Math.floor( Math.random()*section1.length );
+				var randomIndex2 = Math.floor( Math.random()*section2.length );
+				var randomIndex3 = Math.floor( Math.random()*section3.length );
+				var newIndividual = section1[randomIndex1] + section2[randomIndex2] + section3[randomIndex3];
+				offspring.push(newIndividual);
+			}
+			return offspring;
+		};
 	}
 
 };
@@ -200,7 +298,6 @@ Eukaryote.prototype.seed = function(individual) {
 		// generation callback and optionally stop
 		if (isDefined(this.callbacks.generation)) {
 			shouldStop = this.callbacks.generation(g);
-			var shouldStopType = typeName(shouldStop);
 			if ( !isDefined(shouldStop) || !isBoolean(shouldStop) ) {
 				throw new Error("'generation' API function should return a boolean");
 			}
@@ -252,25 +349,32 @@ Eukaryote.prototype.applySelection = function() {
 	this.strategy.selection(this.population);
 	var numberOfSuvivors = this.population.length;
 	if (isDefined(this.callbacks.crossover)) {
+		this.strategy.mating.begin();
 		while (this.population.length < this.config.populationSize) {
-			var randomIndividualIndex1 = Math.floor( Math.random()*this.population.length );
-			var randomIndividualIndex2 = Math.floor( Math.random()*this.population.length );
-			var randomIndividual1 = this.population[randomIndividualIndex1];
-			var randomIndividual2 = this.population[randomIndividualIndex2];
-			var offspring = this.callbacks.crossover(
-				lodash.clone(randomIndividual1, true), 
-				lodash.clone(randomIndividual2, true));
+
+			// mate
+			var individuals = this.strategy.mating.mate(this.population);
+			individuals = cloneIndividuals(individuals);
+
+			// crossover
+			var offspring = this.callbacks.crossover(individuals);
+
+			// validation
 			if (!Array.isArray(offspring)) {
 				throw new Error("offspring returned from 'crossover' API function must be an array");
 			}
-			if (offspring === null || offspring.length !== 2) {
+			if (!isDefined(offspring) || offspring.length !== 2) {
 				throw new Error("2 offspring must be returned from 'crossover' API function");
 			}
+
+			// repopulate
 			this.spawn(offspring[0]);
 			if (this.population.length < this.config.populationSize) {
 				this.spawn(offspring[1]);
 			}
+
 		}
+		this.strategy.mating.end();
 	} else {
 		for (var c=numberOfSuvivors; c<this.config.populationSize; c++) {
 			var randomSurvivorIndex = Math.floor( Math.random()*numberOfSuvivors );
@@ -279,6 +383,50 @@ Eukaryote.prototype.applySelection = function() {
 		}
 	}
 };
+
+/**
+ * Perform a deep copy of individuals.
+ * @param array of individuals to copy
+ * @return array of new individuals
+ */
+function cloneIndividuals(individuals) {
+	var newIndividuals = [];
+	individuals.forEach(function(individual) {
+		newIndividuals.push( lodash.clone(individual, true) );
+	});
+	return newIndividuals;
+}
+
+/**
+ * Validate object is not null or undefined.
+ */
+function isDefined(o) {
+	return o !== null && o !== undefined;
+}
+
+/**
+ * Validate object is a boolean.
+ */
+function isBoolean(o) {
+	var type = typeName(o);
+	return type === 'boolean' || type === 'Boolean';
+}
+
+/**
+ * Validate object is a string.
+ */
+function isString(o) {
+	var type = typeName(o);
+	return type === 'string' || type === 'String';
+}
+
+/**
+ * Validate object is a real number (not NaN or Infinity)
+ */
+function isNumber(o) {
+	var type = typeName(o);	
+	return type === 'number' && !isNaN(o) && o !== Infinity;
+}
 
 /**
  * Node.js module export.
