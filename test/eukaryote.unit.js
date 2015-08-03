@@ -60,25 +60,6 @@ module.exports = {
 	},
 
 	/**
-	 * Validate 'mutate' callback for all individuals in a population.
-	 */
-	mutatePopulation_callback: function(test) {
-		var numberOfMutateCalls = 0;
-		var eukaryote = new Eukaryote({
-			callbacks: {
-				mutate: function(individual) { numberOfMutateCalls++; },
-				fitness: function(individual) { return 0; }
-			}
-		});
-		eukaryote.spawn('individual1');
-		eukaryote.spawn('individual2');
-		eukaryote.spawn('individual3');
-		eukaryote.mutatePopulation();
-		test.equal(numberOfMutateCalls, 3, 'mutate callback not executed for all individuals in population');
-		test.done();
-	},
-
-	/**
 	 * Validate shuffle of population.
 	 */
 	shufflePopulation: function(test) {
@@ -124,7 +105,7 @@ module.exports = {
 	/**
 	 * Validate population restored after applying selection to individuals without crossover.
 	 */
-	applySelection_noCrossover_populationRestored: function(test) {
+	selection_noCrossover_populationRestored: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -135,7 +116,7 @@ module.exports = {
 		for (var c=1; c<=10; c++) {
 			eukaryote.spawn(c);
 		}
-		eukaryote.applySelection();
+		eukaryote.selection();
 		test.equal(
 			eukaryote.population.length, 
 			eukaryote.config.populationSize, 
@@ -146,7 +127,7 @@ module.exports = {
 	/**
 	 * Validate population restored after applying selection to individuals with crossover.
 	 */
-	applySelection_crossover_populationRestored: function(test) {
+	selection_crossover_populationRestored: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -160,7 +141,7 @@ module.exports = {
 		for (var c=1; c<=10; c++) {
 			eukaryote.spawn(c);
 		}
-		eukaryote.applySelection();
+		eukaryote.selection();
 		test.equal(
 			eukaryote.population.length, 
 			eukaryote.config.populationSize, 
@@ -171,7 +152,7 @@ module.exports = {
 	/**
 	 * Validate exception thrown when 'crossover' API function provided but offspring are not returned.
 	 */
-	applySelection_crossover_noOffspring: function(test) {
+	selection_crossover_noOffspring: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -184,7 +165,7 @@ module.exports = {
 			eukaryote.spawn(c);
 		}
 		test.throws(function() {
-			eukaryote.applySelection();
+			eukaryote.selection();
 		});
 		test.done();
 	},
@@ -192,7 +173,7 @@ module.exports = {
 	/**
 	 * Validate exception thrown when 'crossover' API function provided but only 1 offspring is returned.
 	 */
-	applySelection_crossover_oneOffspring: function(test) {
+	selection_crossover_oneOffspring: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -207,7 +188,7 @@ module.exports = {
 			eukaryote.spawn(c);
 		}
 		test.throws(function() {
-			eukaryote.applySelection();
+			eukaryote.selection();
 		});
 		test.done();
 	},
@@ -215,7 +196,7 @@ module.exports = {
 	/**
 	 * Validate exception thrown when 'crossover' API function provided but only 1 offspring is returned.
 	 */
-	applySelection_crossover_threeOffspring: function(test) {
+	selection_crossover_threeOffspring: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -230,7 +211,7 @@ module.exports = {
 			eukaryote.spawn(c);
 		}
 		test.throws(function() {
-			eukaryote.applySelection();
+			eukaryote.selection();
 		});
 		test.done();
 	},
@@ -238,7 +219,7 @@ module.exports = {
 	/**
 	 * Validate exception thrown when 'crossover' API function provided but invalid object returned.
 	 */
-	applySelection_crossover_invalidOffspring: function(test) {
+	selection_crossover_invalidOffspring: function(test) {
 		var eukaryote = new Eukaryote({
 			callbacks: {
 				mutate: function(individual) { },
@@ -253,7 +234,7 @@ module.exports = {
 			eukaryote.spawn(c);
 		}
 		test.throws(function() {
-			eukaryote.applySelection();
+			eukaryote.selection();
 		});
 		test.done();
 	},
@@ -537,6 +518,16 @@ module.exports = {
 		test.done();
 	},
 
+	MatingStrategy_Random_numberOfIndividuals: function(test) {
+		var population = [ 1, 2, 3, 4, 5 ];
+		var strategy = Eukaryote.MatingStrategy.Random({numberOfIndividuals: 3});
+		strategy.begin();
+		var parents = strategy.mate(population);
+		test.equal(3, parents.length, 'expected 3 individuals');
+		strategy.end();
+		test.done();
+	},
+
 	MatingStrategy_Sequential: function(test) {
 		var population = [ 1, 2, 3, 4, 5 ];
 		var strategy = Eukaryote.MatingStrategy.Sequential({numberOfIndividuals: 2});
@@ -559,6 +550,7 @@ module.exports = {
 		var strategy = Eukaryote.MatingStrategy.Sequential({numberOfIndividuals: 3});
 		strategy.begin();
 		var parents = strategy.mate(population);
+		test.equal(3, parents.length, 'expected 3 individuals');
 		test.equal(1, parents[0]);
 		test.equal(2, parents[1]);
 		test.equal(3, parents[2]);
@@ -593,6 +585,7 @@ module.exports = {
 		var strategy = Eukaryote.MatingStrategy.SequentialRandom({numberOfIndividuals: 3});
 		strategy.begin();
 		var parents = strategy.mate(population);
+		test.equal(3, parents.length, 'expected 3 individuals');
 		test.equal(1, parents[0]);
 		test.ok(population.indexOf(parents[1]) >= 0, 'no such individual in population');
 		test.ok(population.indexOf(parents[2]) >= 0, 'no such individual in population');
@@ -627,8 +620,8 @@ module.exports = {
 			}
 		});
 		eukaryote.seed({});
-		test.equal(mutateCalls, populationSize*numberOfGenerations);
-		test.equal(fitnessCalls, populationSize*numberOfGenerations);
+		test.equal(mutateCalls, populationSize*numberOfGenerations*0.9);
+		test.equal(fitnessCalls, populationSize*numberOfGenerations + populationSize);
 		test.equal(crossoverCalls, (Math.floor(populationSize*0.9/2)+1)*numberOfGenerations);
 		test.equal(generationCalls, numberOfGenerations);
 		test.done();

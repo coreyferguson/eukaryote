@@ -72,7 +72,7 @@ module.exports = {
 	},
 
 	seed: function(test) {
-		var numberOfAttempts = 10;
+		var numberOfAttempts = 5;
 		var numberOfSuccesses = 0;
 		for (var c=0; c<numberOfAttempts; c++) {
 			var hw = new HelloWorld({logging: false});
@@ -82,7 +82,7 @@ module.exports = {
 			}
 		}
 		var percentSuccess = numberOfSuccesses / numberOfAttempts;
-		test.ok(percentSuccess > 0.9);
+		test.ok(percentSuccess > 0.9, 'expected 90% success rate, actual: ', percentSuccess);
 		test.done();
 	}
 

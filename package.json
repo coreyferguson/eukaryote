@@ -31,8 +31,11 @@
     "grunt-contrib-jshint": "~0.11.2"
   },
   "dependencies": {
+    "chalk": "^1.1.0",
     "lodash": "~3.10.0",
+    "mathjs": "^2.0.1",
     "pretty-data2": "~0.40.1",
+    "pretty-ms": "^2.0.0",
     "type-name": "~1.0.1"
   }
 }

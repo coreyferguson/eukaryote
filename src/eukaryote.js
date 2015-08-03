@@ -289,11 +289,12 @@ Eukaryote.prototype.seed = function(individual) {
 	}
 	// Loop through numberOfGenerations
 	var shouldStop = false;
+	this.shufflePopulation();
+	this.sortPopulationByFitness();
 	for (var g=0; g<this.config.numberOfGenerations && !shouldStop; g++) {
-		this.mutatePopulation();
+		this.selection();
 		this.shufflePopulation();
 		this.sortPopulationByFitness();
-		this.applySelection();
 
 		// generation callback and optionally stop
 		if (isDefined(this.callbacks.generation)) {
@@ -313,18 +314,8 @@ Eukaryote.prototype.spawn = function(individual) {
 };
 
 /**
- * Execute 'mutate' API callback for each individual within the population.
- */
-Eukaryote.prototype.mutatePopulation = function() {
-	var that = this;
-	that.population.forEach(function(individual) {
-		that.callbacks.mutate(individual);
-	});
-};
-
-/**
  * Shuffle the population. This is used because individuals with the same fitness may not have the same 
- * genotype; fitness should be calculated from phenotype. When applying selection pressures against a population
+ * phenotype; fitness should be calculated from phenotype. When applying selection pressures against a population
  * we don't want to have bias against those individuals who were arbitrarily created first.
  */
 Eukaryote.prototype.shufflePopulation = function() {
@@ -345,9 +336,10 @@ Eukaryote.prototype.sortPopulationByFitness = function() {
  * Apply selection pressure to individuals within the population.
  * Selection (top 10% fittest individuals survive to reproduce).
  */
-Eukaryote.prototype.applySelection = function() {
+Eukaryote.prototype.selection = function() {
 	this.strategy.selection(this.population);
 	var numberOfSuvivors = this.population.length;
+	var offspring;
 	if (isDefined(this.callbacks.crossover)) {
 		this.strategy.mating.begin();
 		while (this.population.length < this.config.populationSize) {
@@ -357,7 +349,7 @@ Eukaryote.prototype.applySelection = function() {
 			individuals = cloneIndividuals(individuals);
 
 			// crossover
-			var offspring = this.callbacks.crossover(individuals);
+			offspring = this.callbacks.crossover(individuals);
 
 			// validation
 			if (!Array.isArray(offspring)) {
@@ -368,8 +360,10 @@ Eukaryote.prototype.applySelection = function() {
 			}
 
 			// repopulate
+			this.callbacks.mutate(offspring[0]);
 			this.spawn(offspring[0]);
 			if (this.population.length < this.config.populationSize) {
+				this.callbacks.mutate(offspring[1]);
 				this.spawn(offspring[1]);
 			}
 
@@ -379,7 +373,9 @@ Eukaryote.prototype.applySelection = function() {
 		for (var c=numberOfSuvivors; c<this.config.populationSize; c++) {
 			var randomSurvivorIndex = Math.floor( Math.random()*numberOfSuvivors );
 			var randomSurvivor = this.population[randomSurvivorIndex];
-			this.spawn(lodash.clone(randomSurvivor, true));
+			offspring = lodash.clone(randomSurvivor, true);
+			this.callbacks.mutate(offspring);
+			this.spawn(offspring);
 		}
 	}
 };

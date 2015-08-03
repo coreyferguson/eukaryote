@@ -1,18 +1,26 @@
 
+// external dependencies
+var mathjs = require('mathjs');
+var lodash = require('lodash');
+var chalk = require('chalk');
+
+// internal dependencies
 var Eukaryote = require('../../src/eukaryote.js');
 
-function isDefined(o) {
-	return o !== null && o !== undefined;
-}
-
 var MathJeopardy = function(options) {
+	// configuration
 	options = options || {};
-	this.target = options.target || 9.5;
+	this.target = options.target || 100;
 	this.probabilities = {
-		mutateExistingGene: 0.25,
-		newGene: 0.3,
-		removeGene: 0.15
+		mutateExistingGene: 0.15,
+		newGene: 0.075,
+		removeGene: 0.0375
 	};
+	if (!isDefined(options.quitWhenSolutionFound)) {
+		this.quitWhenSolutionFound = true;
+	} else {
+		this.quitWhenSolutionFound = options.quitWhenSolutionFound;
+	}
 	if (isDefined(options.logging)) {
 		this.logging = options.logging;
 	} else {
@@ -20,56 +28,79 @@ var MathJeopardy = function(options) {
 	}
 	this.possibleNumbers = '123456789';
 	this.possibleSymbols = '-+*/';
+
+	// find multiplication factor to increase fitness appropriately even for smaller fractions
+	// this is necessary for appropriately weighting parsimonious selection pressure
+	this.multiplicationFactor = 1;
+	var targetString = '' + this.target;
+	var index = targetString.indexOf('.');
+	if (index >= 0) {
+		var numbersAfterDecimal = (targetString.length-1) - targetString.indexOf('.');
+		for (var c=0; c<numbersAfterDecimal; c++) {
+			this.multiplicationFactor *= 10;
+		}
+	}
+
+	// chalk themes (color output to console)
+	this.chalkGeneration = chalk.bold.red;
+	this.chalkGenotype = chalk.bold.green;
+	this.chalkPhenotype = chalk.bold.yellow;
+	this.chalkFitness = chalk.bold.blue;
+	this.chalkSolution = chalk.bold.magenta;
+
 };
 
 MathJeopardy.prototype.fitness = function(individual) {
-	var numbers = individual.genotype.match(/\d/g);
-	var symbols = individual.genotype.match(/\D/g);
 
-	// calculate phenotype
+	////
+	// decode phenotype from genotype
+	////
+
 	var phenotype = '';
-	var phenotypeSolution;
-	if (isDefined(numbers) && numbers.length > 0) {
-		phenotype += numbers[0];
-		phenotypeSolution = parseInt(numbers[0], 10);
-
-		var symbolIndex = 0;
-		for (var n=1; n<numbers.length; n++) {
-			var number = parseInt(numbers[n], 10);
-			if (!isDefined(symbols) || symbolIndex >= symbols.length) {
-				break;
-			} else {
-				var symbol = symbols[symbolIndex++];
-				if (symbol === '+') {
-					phenotype += symbol;
-					phenotype += number;
-					phenotypeSolution += number;
-				} else if (symbol === '-') {
-					phenotype += symbol;
-					phenotype += number;
-					phenotypeSolution -= number;
-				} else if (symbol === '*') {
-					phenotype += symbol;
-					phenotype += number;
-					phenotypeSolution *= number;
-				} else if (symbol === '/' && number !== 0) {
-					phenotype += symbol;
-					phenotype += number;
-					phenotypeSolution /= number;
-				}
-			}
-		}
+	var numbers = individual.genotype.match(/\d/g);
+	if (!isDefined(numbers)) { numbers = []; }
+	var symbols = individual.genotype.match(/\D/g);
+	if (!isDefined(symbols)) { symbols = []; }
+	if (numbers.length === 0) {
+		phenotype = '0';
 	} else {
-		phenotype += 0;
-		phenotypeSolution = 0;
+		var numberIndex = 0;
+		var symbolIndex = 0;
+		phenotype += numbers[numberIndex++];
+		while (symbols.length > symbolIndex && numbers.length > numberIndex) {
+			phenotype += symbols[symbolIndex++];
+			phenotype += numbers[numberIndex++];
+		}
 	}
 
-	// calculate fitnes
-	var fitness = Math.abs(phenotypeSolution - this.target) * -1;
+	////
+	// evaluate expression, e.g. 9+1 => 10
+	////
+
+	var solution = mathjs.eval(phenotype);
+
+	////
+	// fitness
+	////
+
+	var fitness = 0;
+
+	// fitness pressure: solution accuracy
+	var adjustedSolution = solution * this.multiplicationFactor;
+	var adjustedTarget = this.target * this.multiplicationFactor;
+	fitness -= Math.abs(adjustedSolution - adjustedTarget);
+
+	// fitness pressure: parsimonious phenotypes (least number of characters)
 	fitness -= phenotype.length * 0.001;
+
+	////
+	// update individual
+	////
+
 	individual.phenotype = phenotype;
 	individual.fitness = fitness;
-	individual.solution = phenotypeSolution;
+	individual.solution = solution;
+
 	return fitness;
 };
 
@@ -128,6 +159,16 @@ MathJeopardy.prototype.mutateExistingGene = function(individual, index) {
 			individual.genotype.substring(index+1, individual.genotype.length);
 };
 
+MathJeopardy.prototype.generation = function(eukaryote, generation) {		
+	var fittestIndividual = eukaryote.population[0];
+	this.printRow(generation, fittestIndividual);
+	if (this.quitWhenSolutionFound && fittestIndividual.solution == this.target) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
 MathJeopardy.prototype.seed = function() {
 	var that = this;
 	var eukaryote = new Eukaryote({
@@ -135,38 +176,65 @@ MathJeopardy.prototype.seed = function() {
 			fitness: function(individual) { return that.fitness(individual); },
 			mutate: function(individual) { that.mutate(individual); },
 			crossover: function(father, mother) { return that.crossover(father, mother); },
-			generation: function(generation) {
-				var fittestIndividual = eukaryote.population[0];
-				if (that.logging) {
-					console.log('Generation ' + generation + 
-						'  ..  Genotype: ' + fittestIndividual.genotype + 
-						'  ..  Phenotype: ' + fittestIndividual.phenotype + 
-						'  ..  Fitness: ' + fittestIndividual.fitness);
-				}
-				if (fittestIndividual.solution === that.target) {
-					return true;
-				} else {
-					return false;
-				}
-			}
+			generation: function(generation) { return that.generation(eukaryote, generation); }
 		},
 		config: {
-			populationSize: 250,
+			populationSize: 500,
 			numberOfGenerations: 500
 		},
 		strategy: {
 			mating: Eukaryote.MatingStrategy.SequentialRandom()
 		}
 	});
+	this.printHeader();
 	eukaryote.seed({genotype: this.newGene()}); // seed the world with single gene individuals
-	if (that.logging) {
-		console.log('Finished. Fittest individual: ' + 
-			eukaryote.population[0].phenotype + 
-			' = ' + 
-			eukaryote.population[0].solution);
-	}
+	this.printResults(eukaryote.population[0]);
 	return eukaryote.population[0];
 };
+
+MathJeopardy.prototype.printHeader = function() {
+	if (this.logging) {
+		var header = this.chalkGeneration('Generation');
+		header += ' .. ';
+		header += this.chalkGenotype('Genotype');
+		header += ' .. ';
+		header += this.chalkPhenotype('Phenotype');
+		header += ' .. ';
+		header += this.chalkFitness('Fitness');
+		header += ' .. ';
+		header += this.chalkSolution('Solution');
+		console.log(header);
+	}
+};
+
+MathJeopardy.prototype.printRow = function(generation, individual) {
+	if (this.logging) {
+		var row = this.chalkGeneration(generation);
+		row += ' .. ';
+		row += this.chalkGenotype(individual.genotype);
+		row += ' .. ';
+		row += this.chalkPhenotype(individual.phenotype);
+		row += ' .. ';
+		row += this.chalkFitness(individual.fitness);
+		row += ' .. ';
+		row += this.chalkSolution(individual.solution);
+		console.log(row);
+	}
+};
+
+MathJeopardy.prototype.printResults = function(individual) {
+	if (this.logging) {
+		var results = 'Finished. Fittest individual: ';
+		results += this.chalkPhenotype(individual.phenotype);
+		results += ' = ';
+		results += this.chalkSolution(individual.solution);
+		console.log(results);
+	}
+};
+
+function isDefined(o) {
+	return o !== null && o !== undefined;
+}
 
 /**
  * Node.js module export

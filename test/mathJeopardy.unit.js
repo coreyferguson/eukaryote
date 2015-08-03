@@ -6,7 +6,8 @@ module.exports = {
 
 	setUp: function(callback) {
 		mathJeopardy = new MathJeopardy({
-			logging: false
+			logging: false,
+			target: 9.5
 		});
 		callback();
 	},
@@ -67,17 +68,33 @@ module.exports = {
 	},
 
 	seed: function(test) {
-		var numberOfAttempts = 10;
+		var numberOfAttempts = 5;
 		var numberOfSuccesses = 0;
 		for (var c=0; c<numberOfAttempts; c++) {
 			var mj = new MathJeopardy({logging: false});
 			var fittestIndividual = mj.seed();
-			if (fittestIndividual.solution > mj.target-0.5 && fittestIndividual.solution < mj.target+0.5) {
+			if (fittestIndividual.solution === mj.target) {
 				numberOfSuccesses++;
 			}
 		}
 		var percentSuccess = numberOfSuccesses / numberOfAttempts;
-		test.ok(percentSuccess >= 0.7, 'success rate too low: ' + percentSuccess);
+		test.ok(percentSuccess >= 0.8, 'success rate too low: ' + percentSuccess);
+		test.done();
+	},
+
+	fitness: function(test) {
+		var individual = { genotype: '+912/' };
+		var fitness = mathJeopardy.fitness(individual);
+		test.equal(-0.005, fitness);
+		test.done();
+	},
+
+	generation_quitWhenSolutionFound: function(test) {
+		mathJeopardy.quitWhenSolutionFound = true;
+		var result = mathJeopardy.generation({
+			population: [ { solution: mathJeopardy.target } ]
+		});
+		test.ok(result, 'expected evolution to end when solution found');
 		test.done();
 	}
 

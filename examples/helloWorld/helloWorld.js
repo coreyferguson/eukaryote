@@ -1,3 +1,5 @@
+var chalk = require('chalk');
+
 var Eukaryote = require('../../src/eukaryote');
 
 function isDefined(o) {
@@ -26,6 +28,11 @@ var HelloWorld = function(options) {
 	} else {
 		this.logging = true;
 	}
+
+	// chalk themes (terminal output coloring)
+	this.chalkGeneration = chalk.bold.blue;
+	this.chalkGenotype = chalk.bold.green;
+	this.chalkFitness = chalk.bold.yellow;
 };
 
 /**
@@ -140,9 +147,7 @@ HelloWorld.prototype.seed = function() {
 			generation: function(generation) {
 				// Logging
 				var fittestIndividual = eukaryote.population[0];
-				if (that.logging) {
-					console.log(generation + ': ', fittestIndividual);
-				}
+				that.printRow(generation, fittestIndividual);
 				if (fittestIndividual.genotype === that.targetMessage) {
 					return true;
 				} else {
@@ -155,8 +160,31 @@ HelloWorld.prototype.seed = function() {
 			numberOfGenerations: 500
 		}
 	});
+	this.printHeader();
 	eukaryote.seed({genotype: this.newGene()}); // seed the world with single gene individuals
 	return eukaryote.population[0];
+};
+
+HelloWorld.prototype.printHeader = function() {
+	if (this.logging) {
+		var header = this.chalkGeneration('Generation');
+		header += ' .. ';
+		header += this.chalkGenotype('Genotype');
+		header += ' .. ';
+		header += this.chalkFitness('Fitness');
+		console.log(header);
+	}
+};
+
+HelloWorld.prototype.printRow = function(generation, individual) {
+	if (this.logging) {
+		var row = this.chalkGeneration(generation);
+		row += ' .. ';
+		row += this.chalkGenotype(individual.genotype);
+		row += ' .. ';
+		row += this.chalkFitness(individual.fitness);
+		console.log(row);
+	}
 };
 
 /**
