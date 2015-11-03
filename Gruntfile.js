@@ -1,14 +1,28 @@
+
 module.exports = function(grunt) {
 
-	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
-		nodeunit: [ 'test/*.js' ],
-		jshint: [ 'Gruntfile.js', 'src/**/*.js', 'test/**/*.js', 'examples/**/*.js' ]
-	});
+  require('time-grunt')(grunt);
+  require('load-grunt-tasks')(grunt);
 
-	grunt.loadNpmTasks('grunt-contrib-nodeunit');
-	grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+    jshint: require('./config/jshint'),
+    clean: require('./config/clean'),
+    karma: require('./config/karma'),
+    cat: require('./config/cat'),
+    webpack: require('./config/webpack'),
+    bump: require('./config/bump'),
+    uglify: require('./config/uglify'),
+    sizediff: require('./config/sizediff'),
+    jsdoc: require('./config/jsdoc'),
+    jsdoc2md: require('./config/jsdoc2md')
+  });
 
-	grunt.registerTask('default', ['jshint', 'nodeunit']);
+  grunt.registerTask('default', ['clean', 'jshint', 'test:single', 'webpack', 'uglify', 'jsdoc', 'jsdoc2md', 'sizediff', 'cat:coverageSummary']);
+  
+  grunt.registerTask('test:single', ['test:real']);
+  grunt.registerTask('test:continuous', ['karma:continuous']);
+  grunt.registerTask('test:virtual', ['karma:singleVirtual']);
+  grunt.registerTask('test:real', ['karma:singleReal']);
 
 };

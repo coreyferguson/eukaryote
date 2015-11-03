@@ -1,7 +1,9 @@
 
 # Genetic Algorithm Tutorial
 
+Note: Many parts of this page may be out of date but the high level concepts remain the same.
 
+TODO: Refactor tutorial
 
 ## Summary
 
@@ -85,3 +87,6 @@ What do we need for evolution to occur? As stated in the summary: **replication*
 
 In summary, we need to implement three callbacks: `fitness`, `mutate`, and `crossover`. There is one additional callback used for logging, `generation`, which is called every generation. You can get the most fit individual in a population by calling `eukaryote.population[0]`. Reference the [API Documentation](../src/README.md) to implement the callbacks above to generate the string `HelloWorld!`. Use the [Hello World](helloWorld) example as a cheat sheet.
 
+This activity diagram of Eukaryote's internals may help visualize the above:
+
+![activity diagram](documentation/activity-seed.jpg)

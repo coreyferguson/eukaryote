@@ -1,45 +1,56 @@
 
 # Eukaryote
 
-## Summary
+## Usage - NPM
 
-Eukaryote is an evolutionary algorithm tutorial and library written in JavaScript.
+Install:
 
-Tutorial can be found [here](examples/TUTORIAL.md).
+```bash
+npm install eukaryote --save-dev
+```
 
-Examples can be found [here](examples/README.md).
-
-API Documentation can be found [here](src/README.md).
-
-## Usage
+Require:
 
 ```javascript
-var eukaryote = new Eukaryote({
-	callbacks: {
-		fitness: function(individual) {
-			// calculate fitness score for individual
-			return fitness;
-		},
-		mutate: function(individual) {
-			// mutate this individual's genes
-		},
-		// optional but recommended
-		crossover: function(father, mother) {
-			// perform crossover of similar chromosomes
-			return [son, daughter];
-		}
-	}
+var Eukaryote = require('eukaryote');
+```
+
+Use:
+
+```javascript
+var environment = new Eukaryote.Genetic.Environment({
+  fitnessSync: function(individual) {
+    // calculate fitness score for individual
+    return fitness;
+  },
+  mutateSync: function(individual) {
+    // mutate this individuals' genes
+  }
 });
 
 // create a population from individual and begin evolution
-eukaryote.seed(individual);
+var individual = { ... }; // create individual to seed environment
+environment.seed(individual, function(error) {
+  if (error) console.error('Unexpected error has occurred: ', error);
+  else {
+    // genetic algorithm has completed successfully
+    console.log('Most fit individual:', environment.population[0]);
+  }
+});
 ```
 
-## Build
+## Usage - Browser
 
-```bash
-git clone git@github.com:coreyferguson/eukaryote.git
-cd eukaryote
-npm install
-grunt
-```
+Distribution files are provided for browser support within the [`dist/`](dist/) folder.
+
+## Documentation
+
+API documentation can be viewed in [markdown](dist/api) format and html format after generating with `grunt` in `dist/api/index.html`.
+
+## Examples
+
+Coming soon...
+
+## Tutorial
+
+Tutorial can be seen [here](TUTORIAL.md).

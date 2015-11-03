@@ -1,2 +1,7 @@
 node_modules/
-dist/
+bower_components/
+coverage/
+dist/api/fonts
+dist/api/scripts
+dist/api/styles
+dist/api/*.html
