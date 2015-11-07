@@ -29,7 +29,7 @@ TypeValidator.isString = function(o) {
  * Validate object is a real number (not NaN or Infinity)
  */
 TypeValidator.isNumber = function(o) {
-	var type = typeName(o);	
+	var type = typeName(o);
 	return type === 'number' && !isNaN(o) && o !== Infinity;
 };
 
@@ -42,6 +42,11 @@ TypeValidator.isInteger = function(o) {
 	} else {
 		return false;
 	}
+};
+
+TypeValidator.isArray = function(o) {
+	var type = typeName(o);
+	return type === 'Array';
 };
 
 module.exports = TypeValidator;

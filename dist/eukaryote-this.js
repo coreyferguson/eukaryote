@@ -76,34 +76,31 @@ this["Eukaryote"] =
 	 * - 'abc'  + 'wxyz' = 'aby'  & 'wxcz'
 	 */
 	CrossoverStrategy.SimilarStrings = function(options) {
-		// defaults
+		// Set defaults + validation
 		options = options || {};
 		if (!TypeValidator.isDefined(options.numberOfOffspring)) {
 			options.numberOfOffspring = 2;
+		} else if (!TypeValidator.isInteger(options.numberOfOffspring)) {
+			throw new Error('Illegal argument: numberOfOffspring must be an integer; actual: ' + options.numberOfOffspring);
 		} else if (options.numberOfOffspring < 1) {
-			throw new Error('Illegal argument: numberOfOffspring range: 1 <= o');
+			throw new Error('Illegal argument: numberOfOffspring range: 1 <= o; actual: ' + options.numberOfOffspring);
 		}
-		if (!TypeValidator.isDefined(options.chromosomeLengthAsPercentOfGenotype)) { options.chromosomeLengthAsPercentOfGenotype = 50; }
-		// validation
-		if (!TypeValidator.isNumber(options.numberOfOffspring)) {
-			throw new Error("Option 'numberOfOffspring' must be a number. Found the " + 
-				typeName(options.numberOfOffspring) + ": " + options.numberOfOffspring);
+		if (!TypeValidator.isDefined(options.chromosomeLengthAsPercentOfGenotype)) {
+			options.chromosomeLengthAsPercentOfGenotype = 50;
+		} else if (!TypeValidator.isNumber(options.chromosomeLengthAsPercentOfGenotype)) {
+			throw new Error('Illegal argument: chromosomeLengthAsPercentOfGenotype must be an integer; actual: ' + options.chromosomeLengthAsPercentOfGenotype);
+		} else if (options.chromosomeLengthAsPercentOfGenotype < 1 || options.chromosomeLengthAsPercentOfGenotype > 99) {
+			throw new Error('Illegal argument: chromosomeLengthAsPercentOfGenotype range: 0 < n < 100; actual: ' + options.chromosomeLengthAsPercentOfGenotype);
 		}
-		if (options.numberOfOffspring <= 0) {
-			throw new Error("Option 'numberOfOffspring' must be larger than 0.");
-		}
-		if (!TypeValidator.isNumber(options.chromosomeLengthAsPercentOfGenotype)) {
-			throw new Error("Option 'chromosomeLengthAsPercentOfGenotype' must be a number. Found the " + 
-				typeName(options.chromosomeLengthAsPercentOfGenotype) + ": " + options.chromosomeLengthAsPercentOfGenotype);
-		}
-		if (options.chromosomeLengthAsPercentOfGenotype < 1 || options.chromosomeLengthAsPercentOfGenotype > 100) {
-			throw new Error("Option 'chromosomeLengthAsPercentOfGenotype' must be > 0 and <= 100");
-		}
+
 		return function(genotypes) {
-			// validate all genotypes are of type 'string'
+			// validate genotypes
+			if (!TypeValidator.isDefined(genotypes) || !TypeValidator.isArray(genotypes)) {
+				throw new Error('Illegal argument: genotypes must be an array of strings; actual: ' + genotypes);
+			}
 			genotypes.forEach(function(genotype) {
 				if (!TypeValidator.isString(genotype)) {
-					throw new Error("genotypes provided to CrossoverStrategy.SimilarStrings must be of type 'string'");
+					throw new Error('Illegal argument: genotypes must be strings; actual: ' + genotypes);
 				}
 			});
 			// identify chromosome length
@@ -179,7 +176,7 @@ this["Eukaryote"] =
 	 * Validate object is a real number (not NaN or Infinity)
 	 */
 	TypeValidator.isNumber = function(o) {
-		var type = typeName(o);	
+		var type = typeName(o);
 		return type === 'number' && !isNaN(o) && o !== Infinity;
 	};
 
@@ -192,6 +189,11 @@ this["Eukaryote"] =
 		} else {
 			return false;
 		}
+	};
+
+	TypeValidator.isArray = function(o) {
+		var type = typeName(o);
+		return type === 'Array';
 	};
 
 	module.exports = TypeValidator;

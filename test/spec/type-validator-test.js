@@ -10,6 +10,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isDefined(1)).toBe(true);
 		expect(TypeValidator.isDefined(1.5)).toBe(true);
 		expect(TypeValidator.isDefined('asdf')).toBe(true);
+		expect(TypeValidator.isDefined([])).toBe(true);
 	});
 
 	it('isBoolean', function() {
@@ -20,6 +21,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isBoolean(1)).toBe(false);
 		expect(TypeValidator.isBoolean(1.5)).toBe(false);
 		expect(TypeValidator.isBoolean('asdf')).toBe(false);
+		expect(TypeValidator.isBoolean([])).toBe(false);
 	});
 
 	it('isString', function() {
@@ -30,6 +32,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isString(1)).toBe(false);
 		expect(TypeValidator.isString(1.5)).toBe(false);
 		expect(TypeValidator.isString('asdf')).toBe(true);
+		expect(TypeValidator.isString([])).toBe(false);
 	});
 
 	it('isNumber', function() {
@@ -40,6 +43,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isNumber(1)).toBe(true);
 		expect(TypeValidator.isNumber(1.5)).toBe(true);
 		expect(TypeValidator.isNumber('asdf')).toBe(false);
+		expect(TypeValidator.isNumber([])).toBe(false);
 	});
 
 	it('isInteger', function() {
@@ -50,6 +54,18 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isInteger(1)).toBe(true);
 		expect(TypeValidator.isInteger(1.5)).toBe(false);
 		expect(TypeValidator.isInteger('asdf')).toBe(false);
+		expect(TypeValidator.isInteger([])).toBe(false);
+	});
+
+	it('isArray', function() {
+		expect(TypeValidator.isArray(null)).toBe(false);
+		expect(TypeValidator.isArray(undefined)).toBe(false);
+		expect(TypeValidator.isArray(true)).toBe(false);
+		expect(TypeValidator.isArray(false)).toBe(false);
+		expect(TypeValidator.isArray(1)).toBe(false);
+		expect(TypeValidator.isArray(1.5)).toBe(false);
+		expect(TypeValidator.isArray('asdf')).toBe(false);
+		expect(TypeValidator.isArray([])).toBe(true);
 	});
 
 });

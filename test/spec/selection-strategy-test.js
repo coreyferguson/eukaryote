@@ -115,6 +115,16 @@ describe('SelectionStrategy', function() {
 			}).toThrowError(/Illegal argument.*probability/);
 		});
 
+		it('should always have at least one survivor', function() {
+			var strategy = SelectionStrategy.TopXPercent({
+				probability: 0.01
+			});
+			population = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+			strategy(population);
+			expect(population.length).toBe(1);
+			expect(population[0]).toBe(1);
+		});
+
 	}); // End TopXPercent
 
   //////////////////////////

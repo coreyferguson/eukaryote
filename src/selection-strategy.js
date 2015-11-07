@@ -39,7 +39,6 @@ SelectionStrategy.TopXPercent = function(options) {
 		} else if (options.probability <= 0 || options.probability >= 1) {
 			throw new Error("Illegal argument: probability range: 0 < f < 1");
 		}
-		options.probability = options.probability || 0.1;
 		return function(population) {
 			var numberOfSuvivors = Math.floor(population.length * options.probability);
 			if (numberOfSuvivors <= 0) numberOfSuvivors++;

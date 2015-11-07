@@ -32,6 +32,15 @@ module.exports = function(grunt) {
       }
     },
 
+    cat: {
+      coverageDetail: {
+        file: 'coverage/coverage-detail.txt'
+      },
+      coverageSummary: {
+        file: 'coverage/coverage-summary.txt'
+      }
+    },
+
     webpack: {
       amd: {
         entry: "./src/eukaryote.js",
@@ -75,13 +84,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-webpack');
+  grunt.loadNpmTasks('grunt-cat');
 
   grunt.registerTask('default', ['build', 'jshint', 'test:single']);
   grunt.registerTask('build', ['clean', 'webpack', 'uglify']);
 
-  grunt.registerTask('test:single', ['karma:singleVirtual']);
+  grunt.registerTask('test:single', ['test:virtual']);
   grunt.registerTask('test:continuous', ['karma:continuous']);
-  grunt.registerTask('test:virtual', ['karma:singleVirtual']);
-  grunt.registerTask('test:real', ['karma:singleReal']);
+  grunt.registerTask('test:virtual', ['karma:singleVirtual', 'cat:coverageSummary']);
+  grunt.registerTask('test:real', ['karma:singleReal', 'cat:coverageSummary']);
 
 };
