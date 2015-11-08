@@ -57,6 +57,8 @@
     "karma-requirejs": "^0.2.2",
     "karma-webpack": "^1.7.0",
     "lodash.clone": "^3.0.3",
+    "lodash.shuffle": "^3.1.0",
+    "lodash.sortby": "^3.1.5",
     "phantomjs": "^1.9.18",
     "time-grunt": "^1.2.2",
     "type-name": "^1.1.0",

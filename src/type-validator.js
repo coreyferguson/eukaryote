@@ -54,4 +54,9 @@ TypeValidator.isObject = function(o) {
 	return type === 'Object';
 };
 
+TypeValidator.isFunction = function(o) {
+	var type = typeName(o);
+	return type === 'function';
+};
+
 module.exports = TypeValidator;

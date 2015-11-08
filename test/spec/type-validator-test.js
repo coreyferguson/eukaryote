@@ -12,6 +12,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isDefined('asdf')).toBe(true);
 		expect(TypeValidator.isDefined([])).toBe(true);
 		expect(TypeValidator.isDefined({})).toBe(true);
+		expect(TypeValidator.isDefined(function() {})).toBe(true);
 	});
 
 	it('isBoolean', function() {
@@ -24,6 +25,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isBoolean('asdf')).toBe(false);
 		expect(TypeValidator.isBoolean([])).toBe(false);
 		expect(TypeValidator.isBoolean({})).toBe(false);
+		expect(TypeValidator.isBoolean(function() {})).toBe(false);
 	});
 
 	it('isString', function() {
@@ -36,6 +38,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isString('asdf')).toBe(true);
 		expect(TypeValidator.isString([])).toBe(false);
 		expect(TypeValidator.isString({})).toBe(false);
+		expect(TypeValidator.isString(function() {})).toBe(false);
 	});
 
 	it('isNumber', function() {
@@ -48,6 +51,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isNumber('asdf')).toBe(false);
 		expect(TypeValidator.isNumber([])).toBe(false);
 		expect(TypeValidator.isNumber({})).toBe(false);
+		expect(TypeValidator.isNumber(function() {})).toBe(false);
 	});
 
 	it('isInteger', function() {
@@ -60,6 +64,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isInteger('asdf')).toBe(false);
 		expect(TypeValidator.isInteger([])).toBe(false);
 		expect(TypeValidator.isInteger({})).toBe(false);
+		expect(TypeValidator.isInteger(function() {})).toBe(false);
 	});
 
 	it('isArray', function() {
@@ -72,6 +77,7 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isArray('asdf')).toBe(false);
 		expect(TypeValidator.isArray([])).toBe(true);
 		expect(TypeValidator.isArray({})).toBe(false);
+		expect(TypeValidator.isArray(function() {})).toBe(false);
 	});
 
 	it('isObject', function() {
@@ -84,6 +90,20 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isObject('asdf')).toBe(false);
 		expect(TypeValidator.isObject([])).toBe(false);
 		expect(TypeValidator.isObject({})).toBe(true);
+		expect(TypeValidator.isObject(function() {})).toBe(false);
+	});
+
+	it('isFunction', function() {
+		expect(TypeValidator.isFunction(null)).toBe(false);
+		expect(TypeValidator.isFunction(undefined)).toBe(false);
+		expect(TypeValidator.isFunction(true)).toBe(false);
+		expect(TypeValidator.isFunction(false)).toBe(false);
+		expect(TypeValidator.isFunction(1)).toBe(false);
+		expect(TypeValidator.isFunction(1.5)).toBe(false);
+		expect(TypeValidator.isFunction('asdf')).toBe(false);
+		expect(TypeValidator.isFunction([])).toBe(false);
+		expect(TypeValidator.isFunction({})).toBe(false);
+		expect(TypeValidator.isFunction(function() {})).toBe(true);
 	});
 
 });
