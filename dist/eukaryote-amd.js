@@ -111,6 +111,41 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 
 	};
 
+	/**
+	 * Creates a population of individuals copied from the given individual.
+	 * 
+	 * Evolutionary engine begins running against this population using the provided
+	 * API functions.
+	 */
+	Eukaryote.prototype.seed = function(individual) {
+		this.population = [];
+		if (!TypeValidator.isDefined(individual)) {
+			throw new Error("'individual' must be specified");
+		}
+		// Create population of individuals
+		for (var c=0; c<this.config.populationSize; c++) {
+			this.spawn(lodash.clone(individual, true));
+		}
+		// Loop through numberOfGenerations
+		var shouldStop = false;
+		this.shufflePopulation();
+		this.sortPopulationByFitness();
+		for (var g=0; g<this.config.numberOfGenerations && !shouldStop; g++) {
+			this.selection();
+			this.shufflePopulation();
+			this.sortPopulationByFitness();
+
+			// generation callback and optionally stop
+			if (TypeValidator.isDefined(this.callbacks.generation)) {
+				shouldStop = this.callbacks.generation(g);
+				if ( !TypeValidator.isDefined(shouldStop) || !TypeValidator.isBoolean(shouldStop) ) {
+					throw new Error("'generation' API function should return a boolean");
+				}
+			}
+		}
+	};
+
+
 	module.exports = Eukaryote;
 
 
