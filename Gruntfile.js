@@ -1,5 +1,6 @@
 
 module.exports = function(grunt) {
+
   require('time-grunt')(grunt);
 
   grunt.initConfig({
@@ -75,6 +76,15 @@ module.exports = function(grunt) {
         src: 'dist/eukaryote-this.js',
         dest: 'dist/eukaryote-this.min.js'
       }
+    },
+
+    sizediff: {
+        dist: {
+            src: [
+                'src/**/*.js',
+                'dist/**/*.js'
+            ]
+        }
     }
 
   });
@@ -86,6 +96,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-webpack');
   grunt.loadNpmTasks('grunt-cat');
+  grunt.loadNpmTasks('grunt-sizediff');
 
   grunt.registerTask('default', ['build', 'jshint', 'test:single']);
   grunt.registerTask('build', ['clean', 'webpack', 'uglify']);
