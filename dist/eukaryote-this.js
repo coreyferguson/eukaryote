@@ -47,9 +47,72 @@ this["Eukaryote"] =
 
 	
 	var CrossoverStrategy = __webpack_require__(1);
-	// console.log('CrossoverStrategy:', CrossoverStrategy);
+	var MatingStrategy = __webpack_require__(4);
+	var SelectionStrategy = __webpack_require__(5);
+	var TypeValidator = __webpack_require__(2);
 
-	module.exports = CrossoverStrategy;
+	/**
+	 * Eukaryote constructor.
+	 * @options {
+	 *   config: {
+	 *     populationSize: optional, integer, default: 250, range: 2 <= p
+	 *     numberOfGenerations: optional, integer, default: 500, range: 1 <= g
+	 *   }
+	 * }
+	 */
+	var Eukaryote = function(options) {
+
+		options = options || {};
+		options.callbacks = options.callbacks || {};
+		if (!TypeValidator.isDefined(options.callbacks.fitness)) {
+			throw new Error("Illegal argument: required 'fitness' function undefined");
+		}
+		if (!TypeValidator.isDefined(options.callbacks.mutate)) {
+			throw new Error("Illegal argument: required 'mutate' function undefined");
+		}
+
+		// API
+		this.callbacks = {
+			fitness: options.callbacks.fitness,
+			mutate: options.callbacks.mutate,
+			crossover: options.callbacks.crossover,
+			generation: options.callbacks.generation
+		};
+
+		// Configuration
+		options.config = options.config || {};
+		if (!TypeValidator.isObject(options.config)) {
+			throw new Error('Illegal argument: config must be an object; actual: ' + options.config);
+		}
+		if (!TypeValidator.isDefined(options.config.populationSize)) {
+			options.config.populationSize = 250;
+		} else if (!TypeValidator.isInteger(options.config.populationSize)) {
+			throw new Error('Illegal argument: config.populationSize not an integer; actual: ' + options.config.populationSize);
+		} else if (options.config.populationSize < 2) {
+			throw new Error('Illegal argument: config.populationSize range: 2 <= p');
+		}
+		if (!TypeValidator.isDefined(options.config.numberOfGenerations)) {
+			options.config.numberOfGenerations = 500;
+		} else if (!TypeValidator.isInteger(options.config.numberOfGenerations)) {
+			throw new Error('Illegal argument: config.numberOfGenerations not an integer; actual: ' + options.numberOfGenerations);
+		} else if (options.config.numberOfGenerations < 1) {
+			throw new Error('Illegal argument: config.numberOfGenerations range: 1 <= g');
+		}
+		this.config = options.config;
+
+		// Strategies
+		options.strategy = options.strategy || {};
+		this.strategy = {
+			selection: options.strategy.selection || SelectionStrategy.TopXPercent(),
+			mating: options.strategy.mating || MatingStrategy.Random()
+		};
+
+		// Properties
+		this.population = [];
+
+	};
+
+	module.exports = Eukaryote;
 
 
 /***/ },
@@ -196,6 +259,11 @@ this["Eukaryote"] =
 		return type === 'Array';
 	};
 
+	TypeValidator.isObject = function(o) {
+		var type = typeName(o);
+		return type === 'Object';
+	};
+
 	module.exports = TypeValidator;
 
 
@@ -241,6 +309,196 @@ this["Eukaryote"] =
 	}
 
 	module.exports = typeName;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var TypeValidator = __webpack_require__(2);
+
+	var MatingStrategy = {};
+
+	/**
+	 * X number of individuals chosen at random for reproduction.
+	 * @param options {
+	 *   numberOfIndividuals: optional, integer, default: 2, range: 2 <= i <= population.length
+	 * }
+	 */
+	MatingStrategy.Random = function(options) {
+		options = options || {};
+		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 2;
+		} else if (options.numberOfIndividuals < 2) {
+			throw new Error('Illegal argument: numberOfIndividuals range: 2 <= i <= population.length');
+		}
+		return {
+			begin: function() { },
+			mate: function(population) {
+				if (options.numberOfIndividuals > population.length) {
+					throw new Error('Illegal argument: numberOfIndividuals range: 2 <= i <= population.length');
+				}
+				var individuals = [];
+				for (var c=0; c<options.numberOfIndividuals; c++) {
+					var randomIndividualIndex = Math.floor( Math.random()*population.length );
+					var randomIndividual = population[randomIndividualIndex];
+					individuals.push(randomIndividual);
+				}
+				return individuals;
+			},
+			end: function() { }
+		};
+	};
+
+	/**
+	 * Individuals chosen sequentially from population ordered by fitness starting with most fit individual.
+	 * @param {
+	 *   numberOfIndividuals: optional, integer, default: 2, range: 2 <= i <= population.length
+	 * }
+	 */
+	MatingStrategy.Sequential = function(options) {
+		options = options || {};
+		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 2;
+		} else if (options.numberOfIndividuals < 2) {
+			throw new Error('Illegal argument: numberOfIndividuals range: 2 <= i <= population.length');
+		}
+		var currentIndex;
+		return {
+			begin: function() {
+				currentIndex = 0;
+			},
+			mate: function(population) {
+				if (options.numberOfIndividuals > population.length) {
+					throw new Error('Illegal argument: numberOfIndividuals range: 2 <= i <= population.length');
+				}
+				var individuals = [];
+				for (var c=0; c<options.numberOfIndividuals; c++) {
+					if (currentIndex >= population.length) {
+						currentIndex = 0;
+					}
+					individuals.push(population[currentIndex++]);
+				}
+				return individuals;
+			},
+			end: function() { }
+		};
+	};
+
+
+	/**
+	 * Father is chosen sequentially from population ordered by fitness starting with the most fit individual. 
+	 * Mother is chosen randomly.
+	 * @param {
+	 *   numberOfIndividuals: optional, integer, default: 2, range: 2 <= i <= population.length
+	 * }
+	 */
+	MatingStrategy.SequentialRandom = function(options) {
+		options = options || {};
+		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 2;
+		} else if (options.numberOfIndividuals < 2) {
+			throw new Error('Illegal argument: numberOfIndividuals range: 2 <= i <= population.length');
+		}
+		var currentIndex;
+		return {
+			begin: function() {
+				currentIndex = 0;
+			},
+			mate: function(population) {
+				if (options.numberOfIndividuals > population.length) {
+					throw new Error('Illegal argument: numberOfIndividuals range: 2 <= i <= population.length');
+				}
+				var individuals = [];
+				if (currentIndex >= population.length) {
+					currentIndex = 0;
+				}
+				individuals.push(population[currentIndex++]);
+				for (var c=0; c<options.numberOfIndividuals-1; c++) {
+					var randomIndividualIndex = Math.floor( Math.random()*population.length );
+					individuals.push(population[randomIndividualIndex]);
+				}
+				return individuals;
+			},
+			end: function() { }
+		};
+	};
+
+	module.exports = MatingStrategy;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var TypeValidator = __webpack_require__(2);
+
+	var SelectionStrategy = {};
+
+	/**
+	 * X number of individuals survive for reproduction.
+	 * @param options {
+	 *   numberOfIndividuals: optional, integer, default: 1, range: 0 < i <= population.length
+	 * }
+	 */
+	SelectionStrategy.TopX = function(options) {
+		options = options || {};
+		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
+			options.numberOfIndividuals = 1;
+		} else if (options.numberOfIndividuals <= 0) {
+			throw new Error("Illegal argument: numberOfIndividuals range: 0 < i <= population.length");		
+		} else if (!TypeValidator.isInteger(options.numberOfIndividuals)) {
+			throw new Error('Illegal argument: numberOfIndividuals must be a valid integer');
+		}
+		return function(population) {
+			if (options.numberOfIndividuals > population.length) {
+				throw new Error("Illegal argument: numberOfIndividuals range: 0 < i <= population.length");
+			}
+			var numberOfCasualties = population.length - options.numberOfIndividuals;
+			population.splice(options.numberOfIndividuals, numberOfCasualties);
+		};
+	};
+
+		/**
+		 * Only top X percent of individuals survive to reproduce.
+		 * @param options {
+		 *   probability: optional, float, default: 0.1, range: 0 < f < 1
+		 * }
+		 */
+	SelectionStrategy.TopXPercent = function(options) {
+			options = options || {};
+			if (options.probability === null || options.probability === undefined) {
+				options.probability = 0.1;
+			} else if (options.probability <= 0 || options.probability >= 1) {
+				throw new Error("Illegal argument: probability range: 0 < f < 1");
+			}
+			return function(population) {
+				var numberOfSuvivors = Math.floor(population.length * options.probability);
+				if (numberOfSuvivors <= 0) numberOfSuvivors++;
+				var numberOfCasualties = population.length - numberOfSuvivors;
+				population.splice(numberOfSuvivors, numberOfCasualties);
+			};
+	};
+
+	/**
+	 * For each individual in a population starting with the most fit individual,
+	 * x% probability of death where x grows as the individuals get less and less fit.
+	 */
+	SelectionStrategy.RandomWeightedByRank = function() {
+		return function(population) {
+			var summation = population.length*(population.length+1)/2;
+			for (var index=population.length; index>=0; index--) {
+				var probabilityOfDeath = (index+1) / summation;
+				var randomProbability = Math.random();
+				if (randomProbability <= probabilityOfDeath && population.length > 1) {
+					population.splice(index, 1);
+				}
+			}
+		};
+	};
+
+	module.exports = SelectionStrategy;
 
 
 /***/ }

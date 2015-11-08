@@ -49,4 +49,9 @@ TypeValidator.isArray = function(o) {
 	return type === 'Array';
 };
 
+TypeValidator.isObject = function(o) {
+	var type = typeName(o);
+	return type === 'Object';
+};
+
 module.exports = TypeValidator;
