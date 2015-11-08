@@ -1,4 +1,6 @@
-
+// external dependencies
+var clone = require('lodash.clone');
+// internal dependencies
 var CrossoverStrategy = require('./crossover-strategy');
 var MatingStrategy = require('./mating-strategy');
 var SelectionStrategy = require('./selection-strategy');
@@ -78,7 +80,7 @@ Eukaryote.prototype.seed = function(individual) {
 	}
 	// Create population of individuals
 	for (var c=0; c<this.config.populationSize; c++) {
-		this.spawn(lodash.clone(individual, true));
+		this.spawn(clone(individual, true));
 	}
 	// Loop through numberOfGenerations
 	var shouldStop = false;

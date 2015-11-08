@@ -79,12 +79,18 @@ module.exports = function(grunt) {
     },
 
     sizediff: {
-        dist: {
-            src: [
-                'src/**/*.js',
-                'dist/**/*.js'
-            ]
-        }
+      dist: {
+        options: {
+          target: 'v2'
+        },
+        src: 'dist/**/*.js'
+      },
+      src: {
+        options: {
+          target: 'v2'
+        },
+        src: 'src/**/*.js'
+      }
     }
 
   });
@@ -98,12 +104,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-cat');
   grunt.loadNpmTasks('grunt-sizediff');
 
-  grunt.registerTask('default', ['build', 'jshint', 'test:single']);
+  grunt.registerTask('default', ['build', 'jshint', 'test:single', 'report']);
+  
   grunt.registerTask('build', ['clean', 'webpack', 'uglify']);
-
+  grunt.registerTask('report', ['cat:coverageSummary', 'sizediff']);
   grunt.registerTask('test:single', ['test:virtual']);
   grunt.registerTask('test:continuous', ['karma:continuous']);
-  grunt.registerTask('test:virtual', ['karma:singleVirtual', 'cat:coverageSummary']);
-  grunt.registerTask('test:real', ['karma:singleReal', 'cat:coverageSummary']);
+  grunt.registerTask('test:virtual', ['karma:singleVirtual']);
+  grunt.registerTask('test:real', ['karma:singleReal']);
 
 };
