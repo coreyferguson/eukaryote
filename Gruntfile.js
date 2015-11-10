@@ -8,14 +8,20 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     jshint: {
-      grunt: 'Gruntfile.js',
-      app: 'src/**/*.js',
+      options: {
+        'esnext': true
+      },
+      'Gruntfile.js': 'Gruntfile.js',
+      src: 'src/**/*.js',
       test: 'test/**/*.js'
     },
 
     clean: {
       dist: {
         src: 'dist/**/*.js'
+      },
+      build: {
+        src: 'build/'
       }
     },
 
@@ -44,17 +50,32 @@ module.exports = function(grunt) {
     },
 
     webpack: {
-      amd: {
+      "amd-es6": {
         entry: "./src/eukaryote.js",
         output: {
-          filename: "./dist/eukaryote-amd.js",
+          filename: "./dist/eukaryote-amd-es6.js",
           libraryTarget: 'amd'
         }
       },
-      this: {
+      "this-es6": {
         entry: "./src/eukaryote.js",
         output: {
-          filename: "./dist/eukaryote-this.js",
+          filename: "./dist/eukaryote-this-es6.js",
+          library: 'Eukaryote',
+          libraryTarget: 'this'
+        }
+      },
+      "amd-es5": {
+        entry: "./build/eukaryote.js",
+        output: {
+          filename: "./dist/eukaryote-amd-es5.js",
+          libraryTarget: 'amd'
+        }
+      },
+      "this-es5": {
+        entry: "./build/eukaryote.js",
+        output: {
+          filename: "./dist/eukaryote-this-es5.js",
           library: 'Eukaryote',
           libraryTarget: 'this'
         }
@@ -68,28 +89,35 @@ module.exports = function(grunt) {
     },
 
     uglify: {
-      amd: {
-        src: 'dist/eukaryote-amd.js',
-        dest: 'dist/eukaryote-amd.min.js'
+      "amd-es5.min": {
+        src: 'dist/eukaryote-amd-es5.js',
+        dest: 'dist/eukaryote-amd-es5.min.js'
       },
-      this: {
-        src: 'dist/eukaryote-this.js',
-        dest: 'dist/eukaryote-this.min.js'
+      "this-es5.min": {
+        src: 'dist/eukaryote-this-es5.js',
+        dest: 'dist/eukaryote-this-es5.min.js'
       }
     },
 
     sizediff: {
-      dist: {
-        options: {
-          target: 'v2'
-        },
-        src: 'dist/**/*.js'
+      options: {
+        target: 'v2'
       },
-      src: {
-        options: {
-          target: 'v2'
-        },
-        src: 'src/**/*.js'
+      dist: 'dist/**/*.js',
+      src: 'src/**/*.js'
+    },
+
+    babel: {
+      options: {
+        presets: ['es2015']
+      },
+      dist: {
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: '**/*.js',
+          dest: 'build/'
+        }]
       }
     }
 
@@ -103,11 +131,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-webpack');
   grunt.loadNpmTasks('grunt-cat');
   grunt.loadNpmTasks('grunt-sizediff');
+  grunt.loadNpmTasks('grunt-babel');
 
   grunt.registerTask('default', ['build', 'jshint', 'test:single', 'report']);
   
-  grunt.registerTask('build', ['clean', 'webpack', 'uglify']);
-  grunt.registerTask('report', ['cat:coverageSummary', 'sizediff']);
+  grunt.registerTask('build', ['clean:dist', 'babel', 'webpack', 'uglify', 'clean:build']);
+  grunt.registerTask('report', ['cat:coverageSummary']);
   grunt.registerTask('test:single', ['test:virtual']);
   grunt.registerTask('test:continuous', ['karma:continuous']);
   grunt.registerTask('test:virtual', ['karma:singleVirtual']);

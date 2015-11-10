@@ -44,12 +44,13 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
+	'use strict';
+
 	// external dependencies
 	var lodash = {
 		clone: __webpack_require__(1),
-	 	shuffle: __webpack_require__(14),
-	 	sortBy: __webpack_require__(31)
+		shuffle: __webpack_require__(14),
+		sortBy: __webpack_require__(31)
 	};
 	// internal dependencies
 	var CrossoverStrategy = __webpack_require__(45);
@@ -57,7 +58,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	var SelectionStrategy = __webpack_require__(49);
 	var TypeValidator = __webpack_require__(46);
 
-	var Eukaryote = function(options) {
+	var Eukaryote = function Eukaryote(options) {
 
 		options = options || {};
 		options.callbacks = options.callbacks || {};
@@ -117,15 +118,14 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 
 		// Properties
 		this.population = [];
-
 	};
 
 	/**
 	 * Seed the given individual into a population and run genetic algorithm.
 	 */
-	Eukaryote.prototype.seed = function(individual) {
+	Eukaryote.prototype.seed = function (individual) {
 		this.seedIndividual(individual);
-		for (var g=0; g<this.config.numberOfGenerations; g++) {
+		for (var g = 0; g < this.config.numberOfGenerations; g++) {
 			this.applySelectionStrategy();
 			while (this.population.length < this.config.populationSize) {
 				var individuals = this.getClonesOfMatingStrategy();
@@ -151,12 +151,12 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Spawn a population with clones of the given individual.
 	 */
-	Eukaryote.prototype.seedIndividual = function(individual) {
+	Eukaryote.prototype.seedIndividual = function (individual) {
 		if (!TypeValidator.isObject(individual)) {
 			throw new Error('Illegal argument: individual is not an object.');
 		}
 		this.population = [];
-		for (var c=0; c<this.config.populationSize; c++) {
+		for (var c = 0; c < this.config.populationSize; c++) {
 			this.population.push(this.clone(individual));
 		}
 	};
@@ -164,25 +164,25 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Perform a deep clone on the given individual. Return the clone.
 	 */
-	Eukaryote.prototype.clone = function(individual) {
+	Eukaryote.prototype.clone = function (individual) {
 		return lodash.clone(individual, true);
 	};
 
 	/**
 	 * Apply selection strategy on the current population.
 	 */
-	Eukaryote.prototype.applySelectionStrategy = function() {
+	Eukaryote.prototype.applySelectionStrategy = function () {
 		this.strategy.selection(this.population);
 	};
 
 	/**
 	 * Retrieve individuals chosen from mating strategy. Return clones of those individuals.
 	 */
-	Eukaryote.prototype.getClonesOfMatingStrategy = function() {
+	Eukaryote.prototype.getClonesOfMatingStrategy = function () {
 		var individuals = this.strategy.mating.mate(this.population);
 		var clones = [];
 		var that = this;
-		individuals.forEach(function(individual) {
+		individuals.forEach(function (individual) {
 			clones.push(that.clone(individual));
 		});
 		return clones;
@@ -191,7 +191,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Perform crossover strategy on the given individuals. Return the updated individuals.
 	 */
-	Eukaryote.prototype.crossover = function(individuals) {
+	Eukaryote.prototype.crossover = function (individuals) {
 		if (TypeValidator.isDefined(this.callbacks.crossover)) {
 			individuals = this.callbacks.crossover(individuals);
 		}
@@ -201,9 +201,9 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Mutate the genotypes of all given individuals. Return the updated individuals.
 	 */
-	Eukaryote.prototype.mutate = function(individuals) {
+	Eukaryote.prototype.mutate = function (individuals) {
 		var that = this;
-		individuals.forEach(function(individual) {
+		individuals.forEach(function (individual) {
 			that.callbacks.mutate(individual);
 		});
 		return individuals;
@@ -212,7 +212,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Add all individuals to the population up to the maximum config.populationSize.
 	 */
-	Eukaryote.prototype.spawnIndividuals = function(individuals) {
+	Eukaryote.prototype.spawnIndividuals = function (individuals) {
 		while (individuals.length > 0 && this.population.length < this.config.populationSize) {
 			var individual = individuals.splice(0, 1)[0];
 			this.population.push(individual);
@@ -223,7 +223,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 * Shuffles the population into a random order. This is done before sorting the population so that
 	 * order is not arbitrarily maintained if two individuals coincidentally have the same fitness.
 	 */
-	Eukaryote.prototype.shufflePopulation = function() {
+	Eukaryote.prototype.shufflePopulation = function () {
 		this.population = lodash.shuffle(this.population);
 	};
 
@@ -231,9 +231,9 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 * Sort the population by fitness, descending, where the most fit individual is at population[0].
 	 * Use the 'fitness' callback to determine each individual's fitness.
 	 */
-	Eukaryote.prototype.sortPopulationByFitness = function() {
+	Eukaryote.prototype.sortPopulationByFitness = function () {
 		var that = this;
-		that.population = lodash.sortBy(that.population, function(individual) {
+		that.population = lodash.sortBy(that.population, function (individual) {
 			return that.callbacks.fitness(individual) * -1;
 		});
 	};
@@ -6058,87 +6058,89 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 /* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
+	'use strict';
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	var TypeValidator = __webpack_require__(46);
 
-	var CrossoverStrategy = {};
+	var CrossoverStrategy = (function () {
+	  function CrossoverStrategy() {
+	    _classCallCheck(this, CrossoverStrategy);
+	  }
 
-	/**
-	 * Crossover two genotypes of type 'string'. Replace similar segments of
-	 * string genotypes.
-	 *
-	 * @param options {
-	 *     numberOfOffspring: optional, integer, default: 2, range: 1 <= o
-	 *     chromosomeLengthAsPercentOfGenotype: optional, float, default: 50, range: 0 < n < 100
-	 * }
-	 * 
-	 * Examples: 
-	 * - 'abc'  + 'xyz'  = 'xbc'  & 'ayz'
-	 * - 'abcd' + 'xyz'  = 'aycd' & 'xbz'
-	 * - 'abc'  + 'wxyz' = 'aby'  & 'wxcz'
-	 */
-	CrossoverStrategy.SimilarStrings = function(options) {
-		// Set defaults + validation
-		options = options || {};
-		if (!TypeValidator.isDefined(options.numberOfOffspring)) {
-			options.numberOfOffspring = 2;
-		} else if (!TypeValidator.isInteger(options.numberOfOffspring)) {
-			throw new Error('Illegal argument: numberOfOffspring must be an integer; actual: ' + options.numberOfOffspring);
-		} else if (options.numberOfOffspring < 1) {
-			throw new Error('Illegal argument: numberOfOffspring range: 1 <= o; actual: ' + options.numberOfOffspring);
-		}
-		if (!TypeValidator.isDefined(options.chromosomeLengthAsPercentOfGenotype)) {
-			options.chromosomeLengthAsPercentOfGenotype = 50;
-		} else if (!TypeValidator.isNumber(options.chromosomeLengthAsPercentOfGenotype)) {
-			throw new Error('Illegal argument: chromosomeLengthAsPercentOfGenotype must be an integer; actual: ' + options.chromosomeLengthAsPercentOfGenotype);
-		} else if (options.chromosomeLengthAsPercentOfGenotype < 1 || options.chromosomeLengthAsPercentOfGenotype > 99) {
-			throw new Error('Illegal argument: chromosomeLengthAsPercentOfGenotype range: 0 < n < 100; actual: ' + options.chromosomeLengthAsPercentOfGenotype);
-		}
+	  _createClass(CrossoverStrategy, null, [{
+	    key: 'SimilarStrings',
+	    value: function SimilarStrings(options) {
 
-		return function(genotypes) {
-			// validate genotypes
-			if (!TypeValidator.isDefined(genotypes) || !TypeValidator.isArray(genotypes)) {
-				throw new Error('Illegal argument: genotypes must be an array of strings; actual: ' + genotypes);
-			}
-			genotypes.forEach(function(genotype) {
-				if (!TypeValidator.isString(genotype)) {
-					throw new Error('Illegal argument: genotypes must be strings; actual: ' + genotypes);
-				}
-			});
-			// identify chromosome length
-			var smallestGenotype = genotypes[0];
-			genotypes.forEach(function(genotype) {
-				if (genotype.length < smallestGenotype.length) {
-					smallestGenotype = genotype;
-				}
-			});
-			var chromosomeLength = Math.floor(smallestGenotype.length * options.chromosomeLengthAsPercentOfGenotype / 100);
-			var minIndex = 0;
-			var maxIndex = smallestGenotype.length - chromosomeLength;
-			// retrieve similar chromosomes
-			var randomIndex = Math.floor( Math.random() * (maxIndex+1) );
-			if (randomIndex === 0) { randomIndex++; }
-			var section1 = [];
-			var section2 = [];
-			var section3 = [];
-			genotypes.forEach(function(genotype) {
-				section1.push( genotype.substring(0, randomIndex) );
-				section2.push( genotype.substring(randomIndex, randomIndex+chromosomeLength) );
-				section3.push( genotype.substring(randomIndex+chromosomeLength, genotype.length) );
-			});
-			// create offspring from random chromosomes
-			var offspring = [];
-			for (var c=0; c<options.numberOfOffspring; c++) {
-				var randomIndex1 = Math.floor( Math.random()*section1.length );
-				var randomIndex2 = Math.floor( Math.random()*section2.length );
-				var randomIndex3 = Math.floor( Math.random()*section3.length );
-				var newIndividual = section1[randomIndex1] + section2[randomIndex2] + section3[randomIndex3];
-				offspring.push(newIndividual);
-			}
-			return offspring;
-		};
+	      // Set defaults + validation
+	      options = options || {};
+	      if (!TypeValidator.isDefined(options.numberOfOffspring)) {
+	        options.numberOfOffspring = 2;
+	      } else if (!TypeValidator.isInteger(options.numberOfOffspring)) {
+	        throw new Error('Illegal argument: numberOfOffspring must be an integer; actual: ' + options.numberOfOffspring);
+	      } else if (options.numberOfOffspring < 1) {
+	        throw new Error('Illegal argument: numberOfOffspring range: 1 <= o; actual: ' + options.numberOfOffspring);
+	      }
+	      if (!TypeValidator.isDefined(options.chromosomeLengthAsPercentOfGenotype)) {
+	        options.chromosomeLengthAsPercentOfGenotype = 50;
+	      } else if (!TypeValidator.isNumber(options.chromosomeLengthAsPercentOfGenotype)) {
+	        throw new Error('Illegal argument: chromosomeLengthAsPercentOfGenotype must be an integer; actual: ' + options.chromosomeLengthAsPercentOfGenotype);
+	      } else if (options.chromosomeLengthAsPercentOfGenotype < 1 || options.chromosomeLengthAsPercentOfGenotype > 99) {
+	        throw new Error('Illegal argument: chromosomeLengthAsPercentOfGenotype range: 0 < n < 100; actual: ' + options.chromosomeLengthAsPercentOfGenotype);
+	      }
 
-	};
+	      return function (genotypes) {
+	        // validate genotypes
+	        if (!TypeValidator.isDefined(genotypes) || !TypeValidator.isArray(genotypes)) {
+	          throw new Error('Illegal argument: genotypes must be an array of strings; actual: ' + genotypes);
+	        }
+	        genotypes.forEach(function (genotype) {
+	          if (!TypeValidator.isString(genotype)) {
+	            throw new Error('Illegal argument: genotypes must be strings; actual: ' + genotypes);
+	          }
+	        });
+	        // identify chromosome length
+	        var smallestGenotype = genotypes[0];
+	        genotypes.forEach(function (genotype) {
+	          if (genotype.length < smallestGenotype.length) {
+	            smallestGenotype = genotype;
+	          }
+	        });
+	        var chromosomeLength = Math.floor(smallestGenotype.length * options.chromosomeLengthAsPercentOfGenotype / 100);
+	        var minIndex = 0;
+	        var maxIndex = smallestGenotype.length - chromosomeLength;
+	        // retrieve similar chromosomes
+	        var randomIndex = Math.floor(Math.random() * (maxIndex + 1));
+	        if (randomIndex === 0) {
+	          randomIndex++;
+	        }
+	        var section1 = [];
+	        var section2 = [];
+	        var section3 = [];
+	        genotypes.forEach(function (genotype) {
+	          section1.push(genotype.substring(0, randomIndex));
+	          section2.push(genotype.substring(randomIndex, randomIndex + chromosomeLength));
+	          section3.push(genotype.substring(randomIndex + chromosomeLength, genotype.length));
+	        });
+	        // create offspring from random chromosomes
+	        var offspring = [];
+	        for (var c = 0; c < options.numberOfOffspring; c++) {
+	          var randomIndex1 = Math.floor(Math.random() * section1.length);
+	          var randomIndex2 = Math.floor(Math.random() * section2.length);
+	          var randomIndex3 = Math.floor(Math.random() * section3.length);
+	          var newIndividual = section1[randomIndex1] + section2[randomIndex2] + section3[randomIndex3];
+	          offspring.push(newIndividual);
+	        }
+	        return offspring;
+	      };
+	    }
+	  }]);
+
+	  return CrossoverStrategy;
+	})();
 
 	module.exports = CrossoverStrategy;
 
@@ -6147,21 +6149,23 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 /* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var typeName = __webpack_require__(47);
-		
+
 	var TypeValidator = {};
 
 	/**
 	 * Validate object is not null or undefined.
 	 */
-	TypeValidator.isDefined = function(o) {
+	TypeValidator.isDefined = function (o) {
 		return o !== null && o !== undefined;
 	};
 
 	/**
 	 * Validate object is a boolean.
 	 */
-	TypeValidator.isBoolean = function(o) {
+	TypeValidator.isBoolean = function (o) {
 		var type = typeName(o);
 		return type === 'boolean' || type === 'Boolean';
 	};
@@ -6169,7 +6173,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Validate object is a string.
 	 */
-	TypeValidator.isString = function(o) {
+	TypeValidator.isString = function (o) {
 		var type = typeName(o);
 		return type === 'string' || type === 'String';
 	};
@@ -6177,7 +6181,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Validate object is a real number (not NaN or Infinity)
 	 */
-	TypeValidator.isNumber = function(o) {
+	TypeValidator.isNumber = function (o) {
 		var type = typeName(o);
 		return type === 'number' && !isNaN(o) && o !== Infinity;
 	};
@@ -6185,25 +6189,25 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Validate object is a whole number.
 	 */
-	TypeValidator.isInteger = function(o) {
+	TypeValidator.isInteger = function (o) {
 		if (TypeValidator.isNumber(o)) {
-			return (o % 1 === 0);
+			return o % 1 === 0;
 		} else {
 			return false;
 		}
 	};
 
-	TypeValidator.isArray = function(o) {
+	TypeValidator.isArray = function (o) {
 		var type = typeName(o);
 		return type === 'Array';
 	};
 
-	TypeValidator.isObject = function(o) {
+	TypeValidator.isObject = function (o) {
 		var type = typeName(o);
 		return type === 'Object';
 	};
 
-	TypeValidator.isFunction = function(o) {
+	TypeValidator.isFunction = function (o) {
 		var type = typeName(o);
 		return type === 'function';
 	};
@@ -6259,7 +6263,8 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 /* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
+	'use strict';
+
 	var TypeValidator = __webpack_require__(46);
 
 	var MatingStrategy = {};
@@ -6270,7 +6275,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 *   numberOfIndividuals: optional, integer, default: 2, range: 1 <= i <= population.length
 	 * }
 	 */
-	MatingStrategy.Random = function(options) {
+	MatingStrategy.Random = function (options) {
 		options = options || {};
 		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
 			options.numberOfIndividuals = 2;
@@ -6278,17 +6283,17 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 			throw new Error('Illegal argument: numberOfIndividuals range: 1 <= i <= population.length; actual: ' + options.numberOfIndividuals);
 		}
 		return {
-			begin: function() { },
-			mate: function(population) {
+			begin: function begin() {},
+			mate: function mate(population) {
 				var individuals = [];
-				for (var c=0; c<options.numberOfIndividuals; c++) {
-					var randomIndividualIndex = Math.floor( Math.random()*population.length );
+				for (var c = 0; c < options.numberOfIndividuals; c++) {
+					var randomIndividualIndex = Math.floor(Math.random() * population.length);
 					var randomIndividual = population[randomIndividualIndex];
 					individuals.push(randomIndividual);
 				}
 				return individuals;
 			},
-			end: function() { }
+			end: function end() {}
 		};
 	};
 
@@ -6298,7 +6303,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 *   numberOfIndividuals: optional, integer, default: 2, range: 1 <= i <= population.length
 	 * }
 	 */
-	MatingStrategy.Sequential = function(options) {
+	MatingStrategy.Sequential = function (options) {
 		options = options || {};
 		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
 			options.numberOfIndividuals = 2;
@@ -6307,12 +6312,12 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 		}
 		var currentIndex;
 		return {
-			begin: function() {
+			begin: function begin() {
 				currentIndex = 0;
 			},
-			mate: function(population) {
+			mate: function mate(population) {
 				var individuals = [];
-				for (var c=0; c<options.numberOfIndividuals; c++) {
+				for (var c = 0; c < options.numberOfIndividuals; c++) {
 					if (currentIndex >= population.length) {
 						currentIndex = 0;
 					}
@@ -6320,10 +6325,9 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 				}
 				return individuals;
 			},
-			end: function() { }
+			end: function end() {}
 		};
 	};
-
 
 	/**
 	 * Father is chosen sequentially from population ordered by fitness starting with the most fit individual. 
@@ -6332,7 +6336,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 *   numberOfIndividuals: optional, integer, default: 2, range: 2 <= i <= population.length
 	 * }
 	 */
-	MatingStrategy.SequentialRandom = function(options) {
+	MatingStrategy.SequentialRandom = function (options) {
 		options = options || {};
 		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
 			options.numberOfIndividuals = 2;
@@ -6341,22 +6345,22 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 		}
 		var currentIndex;
 		return {
-			begin: function() {
+			begin: function begin() {
 				currentIndex = 0;
 			},
-			mate: function(population) {
+			mate: function mate(population) {
 				var individuals = [];
 				if (currentIndex >= population.length) {
 					currentIndex = 0;
 				}
 				individuals.push(population[currentIndex++]);
-				for (var c=0; c<options.numberOfIndividuals-1; c++) {
-					var randomIndividualIndex = Math.floor( Math.random()*population.length );
+				for (var c = 0; c < options.numberOfIndividuals - 1; c++) {
+					var randomIndividualIndex = Math.floor(Math.random() * population.length);
 					individuals.push(population[randomIndividualIndex]);
 				}
 				return individuals;
 			},
-			end: function() { }
+			end: function end() {}
 		};
 	};
 
@@ -6366,6 +6370,8 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 /***/ },
 /* 49 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var TypeValidator = __webpack_require__(46);
 
@@ -6377,16 +6383,16 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 *   numberOfIndividuals: optional, integer, default: 1, range: 0 < i <= population.length
 	 * }
 	 */
-	SelectionStrategy.TopX = function(options) {
+	SelectionStrategy.TopX = function (options) {
 		options = options || {};
 		if (!TypeValidator.isDefined(options.numberOfIndividuals)) {
 			options.numberOfIndividuals = 1;
 		} else if (options.numberOfIndividuals <= 0) {
-			throw new Error("Illegal argument: numberOfIndividuals range: 0 < i <= population.length");		
+			throw new Error("Illegal argument: numberOfIndividuals range: 0 < i <= population.length");
 		} else if (!TypeValidator.isInteger(options.numberOfIndividuals)) {
 			throw new Error('Illegal argument: numberOfIndividuals must be a valid integer');
 		}
-		return function(population) {
+		return function (population) {
 			if (options.numberOfIndividuals > population.length) {
 				throw new Error("Illegal argument: numberOfIndividuals range: 0 < i <= population.length");
 			}
@@ -6395,36 +6401,36 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 		};
 	};
 
-		/**
-		 * Only top X percent of individuals survive to reproduce.
-		 * @param options {
-		 *   probability: optional, float, default: 0.1, range: 0 < f < 1
-		 * }
-		 */
-	SelectionStrategy.TopXPercent = function(options) {
-			options = options || {};
-			if (options.probability === null || options.probability === undefined) {
-				options.probability = 0.1;
-			} else if (options.probability <= 0 || options.probability >= 1) {
-				throw new Error("Illegal argument: probability range: 0 < f < 1");
-			}
-			return function(population) {
-				var numberOfSuvivors = Math.floor(population.length * options.probability);
-				if (numberOfSuvivors <= 0) numberOfSuvivors++;
-				var numberOfCasualties = population.length - numberOfSuvivors;
-				population.splice(numberOfSuvivors, numberOfCasualties);
-			};
+	/**
+	 * Only top X percent of individuals survive to reproduce.
+	 * @param options {
+	 *   probability: optional, float, default: 0.1, range: 0 < f < 1
+	 * }
+	 */
+	SelectionStrategy.TopXPercent = function (options) {
+		options = options || {};
+		if (options.probability === null || options.probability === undefined) {
+			options.probability = 0.1;
+		} else if (options.probability <= 0 || options.probability >= 1) {
+			throw new Error("Illegal argument: probability range: 0 < f < 1");
+		}
+		return function (population) {
+			var numberOfSuvivors = Math.floor(population.length * options.probability);
+			if (numberOfSuvivors <= 0) numberOfSuvivors++;
+			var numberOfCasualties = population.length - numberOfSuvivors;
+			population.splice(numberOfSuvivors, numberOfCasualties);
+		};
 	};
 
 	/**
 	 * For each individual in a population starting with the most fit individual,
 	 * x% probability of death where x grows as the individuals get less and less fit.
 	 */
-	SelectionStrategy.RandomWeightedByRank = function() {
-		return function(population) {
-			var summation = population.length*(population.length+1)/2;
-			for (var index=population.length; index>=0; index--) {
-				var probabilityOfDeath = (index+1) / summation;
+	SelectionStrategy.RandomWeightedByRank = function () {
+		return function (population) {
+			var summation = population.length * (population.length + 1) / 2;
+			for (var index = population.length; index >= 0; index--) {
+				var probabilityOfDeath = (index + 1) / summation;
 				var randomProbability = Math.random();
 				if (randomProbability <= probabilityOfDeath && population.length > 1) {
 					population.splice(index, 1);

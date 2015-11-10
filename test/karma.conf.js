@@ -13,8 +13,15 @@ module.exports = function(config) {
       'test/spec/**/*.js': ['webpack']
     },
     webpack: {
-      // Instrument code that isn't test or vendor code.
       module: {
+        loaders: [{
+          test: /(src|test)\/.*\.js$/,
+          exclude: /node_modules/,
+          loader: 'babel',
+          query: {
+            presets: ['es2015']
+          }
+        }],
         postLoaders: [{
           test: /\.js$/,
           exclude: /(test|node_modules)\//,

@@ -37,6 +37,9 @@
   },
   "homepage": "https://github.com/coreyferguson/eukaryote#readme",
   "devDependencies": {
+    "babel-core": "^6.1.2",
+    "babel-loader": "^6.1.0",
+    "babel-preset-es2015": "^6.1.2",
     "grunt": "^0.4.5",
     "grunt-bump": "^0.6.0",
     "grunt-cat": "^0.1.2",
