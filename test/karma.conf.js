@@ -15,16 +15,14 @@ module.exports = function(config) {
     webpack: {
       module: {
         loaders: [{
-          test: /(src|test)\/.*\.js$/,
-          exclude: /node_modules/,
+          test: /(src|test\/spec)\/.*/,
           loader: 'babel',
           query: {
             presets: ['es2015']
           }
         }],
         postLoaders: [{
-          test: /\.js$/,
-          exclude: /(test|node_modules)\//,
+          test: /src\/.*\.js$/,
           loader: 'istanbul-instrumenter'
         }]
       }
