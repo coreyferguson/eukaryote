@@ -58,6 +58,7 @@
     "karma-jasmine": "^0.3.6",
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-requirejs": "^0.2.2",
+    "karma-sourcemap-loader": "^0.3.6",
     "karma-webpack": "^1.7.0",
     "lodash.clone": "^3.0.3",
     "lodash.shuffle": "^3.1.0",

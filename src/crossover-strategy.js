@@ -1,7 +1,7 @@
 
 var TypeValidator = require('./type-validator');
 
-class CrossoverStrategy {
+class CrossoverStrategya {
   static SimilarStrings(options) {
 
     // Set defaults + validation

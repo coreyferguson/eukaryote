@@ -135,7 +135,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['build', 'jshint', 'test:single', 'report']);
   
-  grunt.registerTask('build', ['clean:dist', 'babel', 'webpack', 'uglify', 'clean:build']);
+  grunt.registerTask('build', ['clean:dist', 'babel', 'webpack', 'uglify', 
+    // 'clean:build'
+    ]);
   grunt.registerTask('report', ['cat:coverageSummary']);
   grunt.registerTask('test:single', ['test:virtual']);
   grunt.registerTask('test:continuous', ['karma:continuous']);

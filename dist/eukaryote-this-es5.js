@@ -6067,12 +6067,12 @@ this["Eukaryote"] =
 
 	var TypeValidator = __webpack_require__(46);
 
-	var CrossoverStrategy = (function () {
-	  function CrossoverStrategy() {
-	    _classCallCheck(this, CrossoverStrategy);
+	var CrossoverStrategya = (function () {
+	  function CrossoverStrategya() {
+	    _classCallCheck(this, CrossoverStrategya);
 	  }
 
-	  _createClass(CrossoverStrategy, null, [{
+	  _createClass(CrossoverStrategya, null, [{
 	    key: 'SimilarStrings',
 	    value: function SimilarStrings(options) {
 
@@ -6140,7 +6140,7 @@ this["Eukaryote"] =
 	    }
 	  }]);
 
-	  return CrossoverStrategy;
+	  return CrossoverStrategya;
 	})();
 
 	module.exports = CrossoverStrategy;

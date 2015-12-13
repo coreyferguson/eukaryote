@@ -13,10 +13,12 @@ module.exports = function(config) {
       'test/spec/**/*.js': ['webpack']
     },
     webpack: {
+      devtool: 'source-map',
       module: {
         loaders: [{
-          test: /(src|test\/spec)\/.*/,
           loader: 'babel',
+          include: [ 'src' ],
+          test: /\.js$/,
           query: {
             presets: ['es2015']
           }
@@ -25,7 +27,7 @@ module.exports = function(config) {
           test: /src\/.*\.js$/,
           loader: 'istanbul-instrumenter'
         }]
-      }
+      },
     },
     webpackMiddleware: {
       noInfo: true

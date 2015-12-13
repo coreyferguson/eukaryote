@@ -1,4 +1,14 @@
 
+
+- Use webpack to transpile to amd-es5 with sourcemaps in `build/` folder. Include these files in Karma. Take advantage of [externals](https://webpack.github.io/docs/configuration.html#externals) to require in files from `build/` folder.
+
+
+
+
+
+
+
+
 # Eukaryote
 
 ## Install

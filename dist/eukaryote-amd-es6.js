@@ -6061,7 +6061,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	
 	var TypeValidator = __webpack_require__(46);
 
-	class CrossoverStrategy {
+	class CrossoverStrategya {
 	  static SimilarStrings(options) {
 
 	    // Set defaults + validation
