@@ -206,11 +206,11 @@ describe('Environment', function() {
 
   }); // End constructor
 
-  ////////////////////
-  // seedIndividual //
-  ////////////////////
+  /////////////////////
+  // _seedIndividual //
+  /////////////////////
 
-  describe('seedIndividual', function() {
+  describe('_seedIndividual', function() {
 
     it('should fill entire population with clones of the same individual', function() {
       var environment = new Environment({
@@ -235,13 +235,14 @@ describe('Environment', function() {
       }).toThrowError(/Illegal argument.*individual/);
     });
 
-  }); // End seedIndividual
+  }); // End _seedIndividual
 
-  ///////////
-  // clone //
-  ///////////
+  ////////////
+  // _clone //
+  ////////////
 
-  describe('clone', function() {
+  describe('_clone', function() {
+
     it('should perform a deep clone', function() {
       var environment = new Environment({
         populationSize: 10,
@@ -265,7 +266,8 @@ describe('Environment', function() {
       clone.synonyms.push('liar');
       expect(individual.synonyms).not.toEqual(['handsome', 'intelligent', 'funny', 'liar']);
     });
-  }); // End clone
+
+  }); // End _clone
 
   /////////////////////////////
   // _applySelectionStrategy //
@@ -807,11 +809,11 @@ describe('Environment', function() {
 
   }); // End _generation
 
-  //////////
-  // seed //
-  //////////
+  ///////////
+  // .seed //
+  ///////////
 
-  describe('seed', function() {
+  describe('.seed', function() {
 
     it('should mutate all individuals once per generation', function(done) {
       var mutateCalls = 0;
@@ -881,6 +883,23 @@ describe('Environment', function() {
       });
     });
 
-  }); // End seed
+    it('should throw error when individual is not object literal', function() {
+      var environment = new Environment({
+        fitness: function(individual, callback) { callback(null, 0); },
+        mutate: function(individual, callback) { callback(); }
+      });
+      function Individual() {}
+      var individual = new Individual();
+      environment.seed(individual, function(error) {
+        expect(error).toMatch(/Illegal argument.*individual/);
+      });
+      var AnonymousIndividual = function() {};
+      var anonymousIndividual = new AnonymousIndividual();
+      environment.seed(anonymousIndividual, function(error) {
+        expect(error).toMatch(/Illegal argument.*individual/);
+      });
+    });
+
+  }); // End .seed
 
 }); // End Environment

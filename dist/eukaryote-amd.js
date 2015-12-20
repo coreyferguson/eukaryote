@@ -132,6 +132,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 * });
 	 */
 	var Environment = function(options) {
+
 	  // Input validation
 	  options = options || {};
 	  if (!TypeValidator.isDefined(options.fitness) && !TypeValidator.isDefined(options.fitnessSync)) {
@@ -234,7 +235,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    });
 	  };
-	  // perform on generation
+	  // perform one generation
 	  var shouldContinue = true;
 	  var executeGeneration = function(g, callback) {
 	    that._applySelectionStrategy();
@@ -251,7 +252,11 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	    });
 	  };
 	  // loop through all generations
-	  this._seedIndividual(individual);
+	  try {
+	    this._seedIndividual(individual);
+	  } catch (e) {
+	    callback(e);
+	  }
 	  var loopGenerationsInSequence = function(g) {
 	    if (g < that.numberOfGenerations && shouldContinue) {
 	      executeGeneration(g, function(error) {
@@ -313,7 +318,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 */
 	Environment.prototype._seedIndividual = function(individual) {
 	  if (!TypeValidator.isObject(individual)) {
-	    throw new Error('Illegal argument: individual is not an object.');
+	    throw new Error('Illegal argument: individual is not an object literal');
 	  }
 	  this.population = [];
 	  for (var c=0; c<this.populationSize; c++) {
@@ -5915,7 +5920,7 @@ define(function() { return /******/ (function(modules) { // webpackBootstrap
 	 * @memberof Eukaryote.Utility.TypeValidator
 	 * @function isObject
 	 * @static
-	 * @description Validate object is an object.
+	 * @description Validate given object is an object literal.
 	 * @param {*} property
 	 */
 	TypeValidator.isObject = function(o) {

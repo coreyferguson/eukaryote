@@ -92,6 +92,13 @@ describe('TypeValidator', function() {
 		expect(TypeValidator.isObject([])).toBe(false);
 		expect(TypeValidator.isObject({})).toBe(true);
 		expect(TypeValidator.isObject(function() {})).toBe(false);
+
+		function CustomObject() {}
+		var customObject = new CustomObject();
+		expect(TypeValidator.isObject(customObject)).toBe(false);
+
+		var customAnonymousObject = function() {};
+		expect(TypeValidator.isObject(customAnonymousObject)).toBe(false);
 	});
 
 	it('isFunction', function() {

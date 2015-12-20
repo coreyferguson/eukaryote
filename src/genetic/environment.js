@@ -156,7 +156,7 @@ Environment.prototype.seed = function(individual, callback) {
       }
     });
   };
-  // perform on generation
+  // perform one generation
   var shouldContinue = true;
   var executeGeneration = function(g, callback) {
     that._applySelectionStrategy();
@@ -173,7 +173,11 @@ Environment.prototype.seed = function(individual, callback) {
     });
   };
   // loop through all generations
-  this._seedIndividual(individual);
+  try {
+    this._seedIndividual(individual);
+  } catch (e) {
+    callback(e);
+  }
   var loopGenerationsInSequence = function(g) {
     if (g < that.numberOfGenerations && shouldContinue) {
       executeGeneration(g, function(error) {
@@ -235,7 +239,7 @@ Environment.prototype._generation = function(g, callback) {
  */
 Environment.prototype._seedIndividual = function(individual) {
   if (!TypeValidator.isObject(individual)) {
-    throw new Error('Illegal argument: individual is not an object.');
+    throw new Error('Illegal argument: individual is not an object literal');
   }
   this.population = [];
   for (var c=0; c<this.populationSize; c++) {

@@ -767,7 +767,7 @@ Validate object is an array.
 
 <a name="Eukaryote.Utility.TypeValidator.isObject"></a>
 ##### TypeValidator.isObject(property)
-Validate object is an object.
+Validate given object is an object literal.
 
 **Kind**: static method of <code>[TypeValidator](#Eukaryote.Utility.TypeValidator)</code>  
 

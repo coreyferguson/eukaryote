@@ -85,7 +85,7 @@ TypeValidator.isArray = function(o) {
  * @memberof Eukaryote.Utility.TypeValidator
  * @function isObject
  * @static
- * @description Validate object is an object.
+ * @description Validate given object is an object literal.
  * @param {*} property
  */
 TypeValidator.isObject = function(o) {
